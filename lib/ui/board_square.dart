@@ -7,38 +7,40 @@ import 'package:provider/provider.dart';
 
 class BoardSquare extends StatelessWidget {
   final Square square;
+
   BoardSquare({Key? key, required this.square}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        dragStartBehavior: DragStartBehavior.start,
-        onTap: () => _handleClick(context),
-        child: Container(
-          color: ((square.fileIndex + square.rank) % 2) != 0
-              ? Colors.brown
-              : Colors.white,
-          child: _squareContent(),
-        ),
-      );
+  Widget build(BuildContext context) {
+    BoardStateNotifier state = Provider.of<BoardStateNotifier>(context);
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      dragStartBehavior: DragStartBehavior.start,
+      onTap: () => _handleClick(state),
+      child: Container(
+        color: ((square.fileIndex + square.rank) % 2) != 0
+            ? Colors.brown
+            : Colors.white,
+        child: _squareContent(),
+      ),
+    );
+  }
 
-  void _handleClick(BuildContext context) {
-    BoardStateNotifier state =
-        Provider.of<BoardStateNotifier>(context, listen: false);
+  void _handleClick(BoardStateNotifier state) {
     // On click of a square containing one of the current players pieces
-    bool isSelectingPiece = square.piece?.isWhite == state.isWhitesMove;
+    bool isCurrentPlayersPiece = square.piece?.isWhite == state.isWhitesMove;
     // No piece is selected and the square does not contain the current players color
-    bool hasNoAction = !isSelectingPiece && !square.isLegalTarget;
+    bool hasNoAction = !isCurrentPlayersPiece && !square.isLegalTarget;
     if (hasNoAction) {
       state.selectedSquare = null;
       return;
     }
-    if (isSelectingPiece) {
+    if (isCurrentPlayersPiece) {
       state.selectedSquare = square;
       return;
     }
     // If a piece is already selected and the clicked square is a legal target.
-    bool validMove = state.selectedSquare != null && square.isLegalTarget;
+    bool validMove = (state.selectedSquare != null) && square.isLegalTarget;
     if (validMove) {
       state.move(target: square);
     }
@@ -48,26 +50,36 @@ class BoardSquare extends StatelessWidget {
     // Empty Square
     if (!square.isLegalTarget && square.piece == null) return null;
     // Occupied square which can be captured by selected piece
-    if (square.isLegalTarget && square.piece != null)
-      return Stack(
-        children: <Widget>[
-          Container(
-            decoration: BoxDecoration(
-                border: Border.all(color: Colors.green.withOpacity(0.7))),
-          ),
-          square.piece?.image() ?? Container()
-        ],
-      );
+    if (square.piece != null) {
+      // Occupied square which can't be moved to
+      if (!square.isLegalTarget) {
+        return square.piece!.figurine();
+      } else {
+        return Stack(
+          children: <Widget>[
+            Container(
+              decoration: BoxDecoration(
+                border:
+                    Border.all(color: Colors.green.withOpacity(0.7), width: 4),
+                color: Colors.transparent,
+              ),
+            ),
+          ],
+        );
+      }
+    }
     // Empty square which can be occupied by selected piece
     if (square.isLegalTarget && square.piece == null)
-      return Container(
-        decoration: BoxDecoration(
-          color: Colors.green.withOpacity(0.7),
-          borderRadius: BorderRadius.circular(50),
+      return Center(
+        child: Container(
+          height: 30,
+          width: 30,
+          decoration: BoxDecoration(
+            color: Colors.green.withOpacity(0.6),
+            borderRadius: BorderRadius.circular(15),
+          ),
         ),
       );
-    // Occupied square which can't be moved to
-    if (!square.isLegalTarget && square.piece != null)
-      return square.piece?.image();
+    ;
   }
 }

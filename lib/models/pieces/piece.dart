@@ -19,6 +19,6 @@ abstract class Piece {
     return true;
   }
 
-  Widget image();
+  Widget figurine();
   Piece({this.isWhite = true});
 }

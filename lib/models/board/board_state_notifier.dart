@@ -8,23 +8,18 @@ class BoardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
   Square? _selectedSquare;
   int halfMoveClock;
   int fullMoveNumber;
-  String currentPlayer;
-
-  bool get isWhitesMove => currentPlayer == 'w';
+  bool isWhitesMove;
 
   Square? get selectedSquare => _selectedSquare;
 
   set selectedSquare(Square? selectedSquare) {
+    print(
+        'selecting ${selectedSquare?.piece.runtimeType} on ${selectedSquare?.name}');
     _selectedSquare = selectedSquare;
     if (_selectedSquare != null) {
-      List<Square> moves =
-          _selectedSquare?.piece?.legalMoves(boardState, _selectedSquare!) ??
-              [];
-      for (Square target in moves) {
-        boardState.squares.removeWhere((sq) => sq.name == target.name);
-      }
-      boardState.squares.addAll(moves);
-      boardState.squares.sort();
+      boardState = boardState.withLegalMoves(
+        _selectedSquare!.piece!.legalMoves(boardState, _selectedSquare!),
+      );
     }
     notifyListeners();
   }
@@ -32,14 +27,15 @@ class BoardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
   void nextMove() {
     halfMoveClock++;
     if (!isWhitesMove) fullMoveNumber++;
-    currentPlayer = isWhitesMove ? 'b' : 'w';
+    isWhitesMove = !isWhitesMove;
     selectedSquare = null;
+    notifyListeners();
   }
 
   BoardStateNotifier({
     this.halfMoveClock = 0,
     this.fullMoveNumber = 0,
-    this.currentPlayer = 'w',
+    this.isWhitesMove = true,
     required this.boardState,
   });
 

@@ -22,5 +22,19 @@ class Square extends Comparable<Square> {
   }
 
   @override
-  String toString() => '$name ${piece != null ? piece.runtimeType : ''}';
+  String toString() => '$name ${piece != null ? piece.runtimeType : ''} ${isLegalTarget ? 'legal target' :''}';
+
+  Square copyWith({
+    String? file,
+    int? rank,
+    bool? isLegalTarget,
+    Piece? piece,
+  }) {
+    return Square(
+      file ?? this.file,
+      rank ?? this.rank,
+      isLegalTarget: isLegalTarget ?? this.isLegalTarget,
+      piece: piece ?? this.piece,
+    );
+  }
 }

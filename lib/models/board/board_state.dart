@@ -4,13 +4,18 @@ import 'package:my_own_chess/models/pieces/piece.dart';
 import '../constants.dart';
 
 class BoardState {
+  /// A List of 64 squares which represents the chess board
   final List<Square> squares;
+
+  /// Indicates the square behind a pawn which just advanced 2 fields.
   final String enPassantTarget;
+
+  ///Representation of current castling rights.
   final String castlingRights;
 
   factory BoardState() => newGame();
 
-  BoardState._internal({
+  const BoardState._internal({
     this.enPassantTarget = '-',
     this.castlingRights = 'KQkq',
     this.squares = const [],
@@ -18,6 +23,43 @@ class BoardState {
 
   static BoardState newGame() {
     return BoardState._internal(squares: _initialSquares());
+  }
+
+  BoardState withLegalMoves(List<Square> legalMoves) {
+    return copyWith(
+      squares: squares.map((mappedSquare) {
+        if (legalMoves.any((legalMove) =>
+            legalMove.rank == mappedSquare.rank &&
+            legalMove.file == mappedSquare.file)) {
+          return Square(
+            mappedSquare.file,
+            mappedSquare.rank,
+            piece: mappedSquare.piece,
+            isLegalTarget: true,
+          );
+        }
+        return mappedSquare;
+      }).toList()
+        ..sort(),
+    );
+  }
+
+  BoardState withoutLegalMoves() {
+    return this.copyWith(
+        squares:
+            squares.map((sq) => sq.copyWith(isLegalTarget: false)).toList());
+  }
+
+  BoardState copyWith({
+    String? enPassantTarget,
+    String? castlingRights,
+    List<Square>? squares,
+  }) {
+    return BoardState._internal(
+      enPassantTarget: enPassantTarget ?? this.enPassantTarget,
+      castlingRights: castlingRights ?? this.castlingRights,
+      squares: squares ?? this.squares,
+    );
   }
 
   static List<Square> _initialSquares() {

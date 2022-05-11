@@ -4,7 +4,7 @@ class King extends Piece {
   King({bool isWhite = true}) : super(isWhite: isWhite);
 
   @override
-  Widget image() => Center(
+  Widget figurine() => Center(
         child: Container(
           height: 32,
           width: 32,
