@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:my_own_chess/models/board/board_state_notifier.dart';
@@ -60,7 +59,7 @@ class BoardSquare extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 border:
-                    Border.all(color: Colors.green.withOpacity(0.7), width: 4),
+                    Border.all(color: Colors.green.withOpacity(0.6), width: 4),
                 color: Colors.transparent,
               ),
             ),

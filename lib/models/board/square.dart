@@ -15,14 +15,12 @@ class Square extends Comparable<Square> {
   int get fileIndex => files.indexOf(file);
 
   @override
-  int compareTo(Square other) {
-    return other.rank - rank == 0
-        ? fileIndex - other.fileIndex
-        : other.rank - rank;
-  }
+  int compareTo(Square other) =>
+      other.rank - rank == 0 ? fileIndex - other.fileIndex : other.rank - rank;
 
   @override
-  String toString() => '$name ${piece != null ? piece.runtimeType : ''} ${isLegalTarget ? 'legal target' :''}';
+  String toString() =>
+      '$name ${piece != null ? piece.runtimeType : ''} ${isLegalTarget ? 'legal target' : ''}';
 
   Square copyWith({
     String? file,

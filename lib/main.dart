@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:my_own_chess/models/board/board_state_notifier.dart';
 import 'package:my_own_chess/ui/board.dart';
+import 'package:my_own_chess/ui/game_state_display.dart';
 import 'package:provider/provider.dart';
 
 import 'models/board/board_state.dart';
@@ -37,8 +38,14 @@ class Chess extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Board(),
+      body: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Board(),
+          GameStateDisplay(),
+        ],
       ),
     );
   }

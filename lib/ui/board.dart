@@ -9,21 +9,23 @@ class Board extends StatelessWidget {
   Board({Key? key}) : super(key: key);
 
   Widget build(BuildContext context) {
-    return Container(
-      height: _calculateSideLength(context),
-      width: _calculateSideLength(context),
-      decoration: BoxDecoration(
-        border: Border.all(
-          width: 4,
+    return Center(
+      child: Container(
+        height: _calculateSideLength(context),
+        width: _calculateSideLength(context),
+        decoration: BoxDecoration(
+          border: Border.all(
+            width: 4,
+          ),
+          borderRadius: BorderRadius.circular(4),
         ),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: GridView.count(
-        physics: null,
-        crossAxisCount: 8,
-        children: boardState.squares
-            .map<Widget>((sq) => BoardSquare(square: sq))
-            .toList(),
+        child: GridView.count(
+          physics: null,
+          crossAxisCount: 8,
+          children: boardState.squares
+              .map<Widget>((sq) => BoardSquare(square: sq))
+              .toList(),
+        ),
       ),
     );
   }

@@ -13,13 +13,15 @@ class BoardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
   Square? get selectedSquare => _selectedSquare;
 
   set selectedSquare(Square? selectedSquare) {
-    print(
-        'selecting ${selectedSquare?.piece.runtimeType} on ${selectedSquare?.name}');
     _selectedSquare = selectedSquare;
     if (_selectedSquare != null) {
-      boardState = boardState.withLegalMoves(
-        _selectedSquare!.piece!.legalMoves(boardState, _selectedSquare!),
-      );
+      try {
+        boardState = boardState.withLegalMoves(
+          _selectedSquare!.piece!.legalMoves(boardState, _selectedSquare!),
+        );
+      } catch (e) {
+        print('Caught $e, lul!');
+      }
     }
     notifyListeners();
   }
