@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:my_own_chess/models/pieces/piece.dart';
 
 import 'board_state.dart';
 import 'square.dart';
@@ -14,14 +16,11 @@ class BoardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
 
   set selectedSquare(Square? selectedSquare) {
     _selectedSquare = selectedSquare;
+    boardState = boardState.clearLegalMoves();
     if (_selectedSquare != null) {
-      try {
-        boardState = boardState.withLegalMoves(
-          _selectedSquare!.piece!.legalMoves(boardState, _selectedSquare!),
-        );
-      } catch (e) {
-        print('Caught $e, lul!');
-      }
+      boardState = boardState.showLegalMoves(
+        _selectedSquare!.piece!.legalMoves(boardState, _selectedSquare!),
+      );
     }
     notifyListeners();
   }
@@ -42,6 +41,22 @@ class BoardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
   });
 
   void move({required Square target}) {
+    boardState = boardState.copyWith(
+      squares: boardState.squares.map(
+        (square) {
+          if (square.rank == target.rank && square.file == target.file)
+            return square.copyWith(piece: selectedSquare?.piece);
+          if (square.rank == selectedSquare?.rank &&
+              square.file == selectedSquare?.file) {
+            return Square(square.file, square.rank);
+          }
+          return square;
+        },
+      ).toList(),
+    );
+    boardState = boardState.clearLegalMoves();
+    if (selectedSquare?.piece is Pawn && target.rank == (isWhitesMove ? 8 : 1))
+      print('Promoting a pawn!');
     nextMove();
   }
 }

@@ -25,16 +25,20 @@ class BoardState {
     return BoardState._internal(squares: _initialSquares());
   }
 
-  BoardState withLegalMoves(List<Square> legalMoves) {
+  Piece? getPiece(String file, int rank) => squares
+      .firstWhere(
+        (square) => square.file == file && square.rank == rank,
+        orElse: () => Square(file, rank),
+      )
+      .piece;
+
+  BoardState showLegalMoves(List<Square> legalMoves) {
     return copyWith(
       squares: squares.map((mappedSquare) {
         if (legalMoves.any((legalMove) =>
             legalMove.rank == mappedSquare.rank &&
             legalMove.file == mappedSquare.file)) {
-          return Square(
-            mappedSquare.file,
-            mappedSquare.rank,
-            piece: mappedSquare.piece,
+          return mappedSquare.copyWith(
             isLegalTarget: true,
           );
         }
@@ -44,10 +48,13 @@ class BoardState {
     );
   }
 
-  BoardState withoutLegalMoves() {
-    return this.copyWith(
-        squares:
-            squares.map((sq) => sq.copyWith(isLegalTarget: false)).toList());
+  BoardState clearLegalMoves() {
+    return copyWith(
+      squares: squares
+          .map((square) => square.copyWith(isLegalTarget: false))
+          .toList()
+            ..sort(),
+    );
   }
 
   BoardState copyWith({
@@ -96,7 +103,7 @@ class BoardState {
 
     List<Square> _addPawns() {
       return [
-        for (String file in files) ...[
+        for (String file in FILES) ...[
           Square(file, 2, piece: Pawn()),
           Square(file, 7, piece: Pawn(isWhite: false))
         ]
@@ -110,8 +117,8 @@ class BoardState {
       ..._addBishops(),
       ..._addQueens(),
       ..._addKings(),
-      for (String file in files)
-        for (int rank in ranks.getRange(2, 6).toList()) Square(file, rank)
+      for (String file in FILES)
+        for (int rank in RANKS.getRange(2, 6).toList()) Square(file, rank)
     ]..sort();
   }
 }

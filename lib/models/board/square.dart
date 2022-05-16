@@ -12,7 +12,11 @@ class Square extends Comparable<Square> {
 
   Square(this.file, this.rank, {this.isLegalTarget = false, this.piece});
 
-  int get fileIndex => files.indexOf(file);
+  int get fileIndex => FILES.indexOf(file);
+
+  bool get isEmpty => piece == null;
+
+  bool get isNotEmpty => !isEmpty;
 
   @override
   int compareTo(Square other) =>
@@ -20,7 +24,7 @@ class Square extends Comparable<Square> {
 
   @override
   String toString() =>
-      '$name ${piece != null ? piece.runtimeType : ''} ${isLegalTarget ? 'legal target' : ''}';
+      '$name|${piece?.runtimeType ?? 'empty'}${isLegalTarget ? '|target' : ''}';
 
   Square copyWith({
     String? file,

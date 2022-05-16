@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:my_own_chess/models/board/board_state.dart';
 import 'package:my_own_chess/models/board/square.dart';
+import 'package:my_own_chess/models/constants.dart';
 
 part 'bishop.dart';
 part 'king.dart';
@@ -15,9 +16,7 @@ abstract class Piece {
 
   List<Square> legalMoves(BoardState boardState, Square square);
 
-  bool isPinned(BoardState boardState, Square square) {
-    return true;
-  }
+  bool get isPinned => false;
 
   Widget figurine();
 
@@ -40,5 +39,6 @@ abstract class Piece {
           ),
         ),
       );
+
   Piece({this.isWhite = true});
 }

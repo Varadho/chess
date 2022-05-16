@@ -38,13 +38,13 @@ class Chess extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      body: Stack(
         children: [
           Board(),
-          GameStateDisplay(),
+          Align(
+            alignment: Alignment.topCenter,
+            child: GameStateDisplay(),
+          ),
         ],
       ),
     );

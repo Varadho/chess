@@ -8,17 +8,18 @@ class GameStateDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     BoardStateNotifier state = Provider.of<BoardStateNotifier>(context);
     return Padding(
-      padding: const EdgeInsets.only(left: 24.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             'Current player: ${state.isWhitesMove ? 'White' : 'Black'}',
             style: _textStyle,
           ),
           Text(
-            'Currently selected: ${state.selectedSquare?.name ?? 'none'} ${state.selectedSquare?.piece?.runtimeType ?? ''}',
+            'Currently selected: ${state.selectedSquare}',
             style: _textStyle,
           )
         ],

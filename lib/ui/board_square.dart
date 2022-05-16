@@ -48,37 +48,31 @@ class BoardSquare extends StatelessWidget {
   Widget? _squareContent() {
     // Empty Square
     if (!square.isLegalTarget && square.piece == null) return null;
-    // Occupied square which can be captured by selected piece
+    // Occupied square
     if (square.piece != null) {
-      // Occupied square which can't be moved to
+      // Occupied square which can't be captured
       if (!square.isLegalTarget) {
         return square.piece!.figurine();
       } else {
-        return Stack(
-          children: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                border:
-                    Border.all(color: Colors.green.withOpacity(0.6), width: 4),
-                color: Colors.transparent,
-              ),
-            ),
-          ],
+        return Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.green.withOpacity(0.6), width: 4),
+            color: Colors.transparent,
+          ),
+          child: square.piece!.figurine(),
         );
       }
     }
-    // Empty square which can be occupied by selected piece
-    if (square.isLegalTarget && square.piece == null)
-      return Center(
-        child: Container(
-          height: 30,
-          width: 30,
-          decoration: BoxDecoration(
-            color: Colors.green.withOpacity(0.6),
-            borderRadius: BorderRadius.circular(15),
-          ),
+    // We're only left with empty legal target squares.
+    return Center(
+      child: Container(
+        height: 30,
+        width: 30,
+        decoration: BoxDecoration(
+          color: Colors.green.withOpacity(0.6),
+          borderRadius: BorderRadius.circular(15),
         ),
-      );
-    ;
+      ),
+    );
   }
 }
