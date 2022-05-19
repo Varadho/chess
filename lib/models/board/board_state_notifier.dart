@@ -59,4 +59,13 @@ class BoardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
       print('Promoting a pawn!');
     nextMove();
   }
+
+  void resetGame() {
+    halfMoveClock = 0;
+    fullMoveNumber = 0;
+    isWhitesMove = true;
+    _selectedSquare = null;
+    boardState = BoardState();
+    notifyListeners();
+  }
 }

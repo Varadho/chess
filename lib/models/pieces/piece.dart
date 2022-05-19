@@ -16,9 +16,19 @@ abstract class Piece {
 
   List<Square> legalMoves(BoardState boardState, Square square);
 
+  List<Piece> targets(BoardState boardState, Square square) {
+    List<Piece> targetPieces = [];
+    legalMoves(boardState, square).forEach((sq) {
+      if (sq.piece != null) targetPieces.add(sq.piece!);
+    });
+    return targetPieces;
+  }
+
   bool _isPinned(BoardState boardState, Square square) {
     //TODO Improve this!
     Square kingSquare = boardState.findKingSquare(isWhite);
+    if (square.rank == kingSquare.rank && square.file == kingSquare.file)
+      return false;
 
     bool sharesDiagonalWithKing = kingSquare.fileIndex - kingSquare.rank ==
         square.fileIndex - square.rank;
