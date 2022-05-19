@@ -32,6 +32,9 @@ class BoardState {
       )
       .piece;
 
+  Square findKingSquare(bool isWhite) => squares.firstWhere(
+      (square) => square.piece is King && square.piece?.isWhite == isWhite);
+
   BoardState showLegalMoves(List<Square> legalMoves) {
     return copyWith(
       squares: squares.map((mappedSquare) {

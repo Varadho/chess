@@ -8,7 +8,8 @@ class King extends Piece {
 
   @override
   List<Square> legalMoves(BoardState boardState, Square square) {
-    // TODO: implement legalMoves
-    throw UnimplementedError();
+    List<Square> legalSquares = [];
+
+    return legalSquares;
   }
 }

@@ -16,7 +16,20 @@ abstract class Piece {
 
   List<Square> legalMoves(BoardState boardState, Square square);
 
-  bool get isPinned => false;
+  bool _isPinned(BoardState boardState, Square square) {
+    //TODO Improve this!
+    Square kingSquare = boardState.findKingSquare(isWhite);
+
+    bool sharesDiagonalWithKing = kingSquare.fileIndex - kingSquare.rank ==
+        square.fileIndex - square.rank;
+    bool sharesLineWithKing =
+        kingSquare.file == square.file || kingSquare.rank == square.rank;
+
+    if (sharesDiagonalWithKing || sharesLineWithKing)
+      return true;
+    else
+      return false;
+  }
 
   Widget figurine();
 

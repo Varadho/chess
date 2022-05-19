@@ -9,8 +9,8 @@ class Queen extends Piece {
   @override
   List<Square> legalMoves(BoardState boardState, Square square) {
     return [
-      ...Bishop().legalMoves(boardState, square),
-      ...Rook().legalMoves(boardState, square),
+      ...Bishop(isWhite: isWhite).legalMoves(boardState, square),
+      ...Rook(isWhite: isWhite).legalMoves(boardState, square),
     ];
   }
 }

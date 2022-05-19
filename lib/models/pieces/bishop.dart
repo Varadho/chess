@@ -10,19 +10,19 @@ class Bishop extends Piece {
   List<Square> legalMoves(BoardState boardState, Square square) {
     List<Square> legalSquares = [];
 
-    //Check ranks
+    // if(_isPinned(boardState, square)) return legalSquares;
     int rank = square.rank;
     int file = square.fileIndex;
     //Check NE Diagonal
     while (rank <= 8 && file < 7) {
       Piece? piece = boardState.getPiece(FILES[++file], ++rank);
       if (piece == null) {
-        legalSquares.add(square.copyWith(file: FILES[file], rank: rank));
+        legalSquares.add(Square(FILES[file], rank));
         continue;
       }
       if (piece.isWhite == isWhite) break;
       if (piece.isWhite != isWhite) {
-        legalSquares.add(square.copyWith(file: FILES[file], rank: rank));
+        legalSquares.add(Square(FILES[file], rank, piece: piece));
         break;
       }
     }
@@ -33,12 +33,12 @@ class Bishop extends Piece {
     while (rank >= 1 && file < 7) {
       Piece? piece = boardState.getPiece(FILES[++file], --rank);
       if (piece == null) {
-        legalSquares.add(square.copyWith(file: FILES[file], rank: rank));
+        legalSquares.add(Square(FILES[file], rank));
         continue;
       }
       if (piece.isWhite == isWhite) break;
       if (piece.isWhite != isWhite) {
-        legalSquares.add(square.copyWith(file: FILES[file], rank: rank));
+        legalSquares.add(Square(FILES[file], rank));
         break;
       }
     }
@@ -49,12 +49,12 @@ class Bishop extends Piece {
     while (rank >= 1 && file > 0) {
       Piece? piece = boardState.getPiece(FILES[--file], --rank);
       if (piece == null) {
-        legalSquares.add(square.copyWith(file: FILES[file], rank: rank));
+        legalSquares.add(Square(FILES[file], rank));
         continue;
       }
       if (piece.isWhite == isWhite) break;
       if (piece.isWhite != isWhite) {
-        legalSquares.add(square.copyWith(file: FILES[file], rank: rank));
+        legalSquares.add(Square(FILES[file], rank));
         break;
       }
     }
@@ -64,12 +64,12 @@ class Bishop extends Piece {
     while (rank <= 8 && file > 0) {
       Piece? piece = boardState.getPiece(FILES[--file], ++rank);
       if (piece == null) {
-        legalSquares.add(square.copyWith(file: FILES[file], rank: rank));
+        legalSquares.add(Square(FILES[file], rank));
         continue;
       }
       if (piece.isWhite == isWhite) break;
       if (piece.isWhite != isWhite) {
-        legalSquares.add(square.copyWith(file: FILES[file], rank: rank));
+        legalSquares.add(Square(FILES[file], rank));
         break;
       }
     }

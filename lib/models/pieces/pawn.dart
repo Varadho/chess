@@ -10,8 +10,7 @@ class Pawn extends Piece {
   @override
   List<Square> legalMoves(BoardState boardState, Square start) {
     List<Square> legalSquares = [];
-    //TODO Check for pins
-    if (isPinned) return legalSquares;
+    // if (_isPinned(boardState, start)) return legalSquares;
     if (isWhite) {
       //Check if squares ahead are empty
       if (boardState.getPiece(start.file, start.rank + 1) == null) {
