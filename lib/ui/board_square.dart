@@ -1,13 +1,22 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:my_own_chess/models/board/board_state_notifier.dart';
-import 'package:my_own_chess/models/board/square.dart';
+import 'package:my_own_chess/models/board/coordinate.dart';
+import 'package:my_own_chess/models/squares/piece.dart';
+import 'package:my_own_chess/models/squares/square.dart';
 import 'package:provider/provider.dart';
 
 class BoardSquare extends StatelessWidget {
   final Square square;
+  final Coordinate coord;
+  final bool isWhite;
 
-  BoardSquare({Key? key, required this.square}) : super(key: key);
+  BoardSquare({
+    Key? key,
+    required this.square,
+    required this.isWhite,
+    required this.coord,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +26,7 @@ class BoardSquare extends StatelessWidget {
       dragStartBehavior: DragStartBehavior.start,
       onTap: () => _handleClick(state),
       child: Container(
-        color: ((square.fileIndex + square.rank) % 2) != 0
-            ? Colors.brown
-            : Colors.white,
+        color: isWhite ? Colors.white : Colors.brown,
         child: _squareContent(),
       ),
     );
@@ -27,39 +34,42 @@ class BoardSquare extends StatelessWidget {
 
   void _handleClick(BoardStateNotifier state) {
     // On click of a square containing one of the current players pieces
-    bool isCurrentPlayersPiece = square.piece?.isWhite == state.isWhitesMove;
+    bool isCurrentPlayersPiece =
+        square is Piece && (square as Piece).isWhite == state.isWhitesMove;
+
     // No piece is selected and the square does not contain the current players color
     bool hasNoAction = !isCurrentPlayersPiece && !square.isLegalTarget;
     if (hasNoAction) {
-      state.selectedSquare = null;
+      state.selectedCoord = null;
       return;
     }
     if (isCurrentPlayersPiece) {
-      state.selectedSquare = square;
+      state.selectedCoord = coord;
       return;
     }
     // If a piece is already selected and the clicked square is a legal target.
-    bool validMove = (state.selectedSquare != null) && square.isLegalTarget;
+    bool validMove = (state.selectedCoord != null) && square.isLegalTarget;
     if (validMove) {
-      state.move(target: square);
+      state.move(target: coord);
     }
   }
 
   Widget? _squareContent() {
     // Empty Square
-    if (!square.isLegalTarget && square.piece == null) return null;
+    if (!square.isLegalTarget && square is! Piece) return null;
     // Occupied square
-    if (square.piece != null) {
+    if (square is Piece) {
+      Piece piece = square as Piece;
       // Occupied square which can't be captured
-      if (!square.isLegalTarget) {
-        return square.piece!.figurine();
+      if (!piece.isLegalTarget) {
+        return piece.figurine();
       } else {
         return Container(
           decoration: BoxDecoration(
             border: Border.all(color: Colors.green.withOpacity(0.6), width: 4),
             color: Colors.transparent,
           ),
-          child: square.piece!.figurine(),
+          child: piece.figurine(),
         );
       }
     }

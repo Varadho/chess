@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:my_own_chess/models/board/board_state.dart';
 import 'package:my_own_chess/models/board/board_state_notifier.dart';
+import 'package:my_own_chess/models/board/coordinate.dart';
 import 'package:provider/provider.dart';
 
 import 'board_square.dart';
@@ -22,14 +23,21 @@ class Board extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(4),
         ),
-        child: GridView.count(
+        child: GridView.builder(
+          itemCount: 64,
           physics: null,
-          crossAxisCount: 8,
-          children: boardState.squares
-              .map<Widget>((sq) => BoardSquare(
-                    square: sq,
-                  ))
-              .toList(),
+          shrinkWrap: true,
+          gridDelegate:
+              SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8),
+          itemBuilder: (context, index) {
+            int x = (index / 8).floor();
+            int y = index % 8;
+            return BoardSquare(
+              isWhite: (x - y) % 2 == 0,
+              square: boardState.squares[x][y],
+              coord: Coordinate(x, y),
+            );
+          },
         ),
       ),
     );

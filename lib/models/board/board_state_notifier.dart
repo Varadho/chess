@@ -1,25 +1,32 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:my_own_chess/models/pieces/piece.dart';
+import 'package:flutter/widgets.dart';
+import 'package:my_own_chess/models/squares/piece.dart';
 
+import '../squares/square.dart';
 import 'board_state.dart';
-import 'square.dart';
+import 'coordinate.dart';
 
 class BoardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
   BoardState boardState;
-  Square? _selectedSquare;
+  Coordinate? _selectedCoord;
   int halfMoveClock;
   int fullMoveNumber;
   bool isWhitesMove;
 
-  Square? get selectedSquare => _selectedSquare;
+  Coordinate? get selectedCoord => _selectedCoord;
 
-  set selectedSquare(Square? selectedSquare) {
-    _selectedSquare = selectedSquare;
+  Piece? get selectedPiece {
+    if (_selectedCoord != null &&
+        boardState.squares[_selectedCoord!.x][_selectedCoord!.y] is Piece)
+      return boardState.squares[_selectedCoord!.x][_selectedCoord!.y] as Piece;
+  }
+
+  set selectedCoord(Coordinate? selectedSquare) {
+    _selectedCoord = selectedSquare;
     boardState = boardState.clearLegalMoves();
-    if (_selectedSquare != null) {
+    if (selectedPiece != null) {
       boardState = boardState.showLegalMoves(
-        _selectedSquare!.piece!.legalMoves(boardState, _selectedSquare!),
+        selectedPiece!.legalMoves(boardState, _selectedCoord!),
       );
     }
     notifyListeners();
@@ -29,7 +36,7 @@ class BoardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
     halfMoveClock++;
     if (!isWhitesMove) fullMoveNumber++;
     isWhitesMove = !isWhitesMove;
-    selectedSquare = null;
+    selectedCoord = null;
     notifyListeners();
   }
 
@@ -40,23 +47,15 @@ class BoardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
     required this.boardState,
   });
 
-  void move({required Square target}) {
-    boardState = boardState.copyWith(
-      squares: boardState.squares.map(
-        (square) {
-          if (square.rank == target.rank && square.file == target.file)
-            return square.copyWith(piece: selectedSquare?.piece);
-          if (square.rank == selectedSquare?.rank &&
-              square.file == selectedSquare?.file) {
-            return Square(square.file, square.rank);
-          }
-          return square;
-        },
-      ).toList(),
-    );
+  void move({required Coordinate target}) {
+    Piece piece =
+        boardState.squares[selectedCoord!.x][selectedCoord!.y] as Piece;
+    boardState.squares[selectedCoord!.x][selectedCoord!.y] = Square();
+    boardState.squares[target.x][target.y] = piece;
+
     boardState = boardState.clearLegalMoves();
-    if (selectedSquare?.piece is Pawn && target.rank == (isWhitesMove ? 8 : 1))
-      print('Promoting a pawn!');
+    if (piece is Pawn && target.y == (isWhitesMove ? 7 : 0))
+      boardState.squares[target.x][target.y] = Queen(isWhite: piece.isWhite);
     nextMove();
   }
 
@@ -64,7 +63,7 @@ class BoardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
     halfMoveClock = 0;
     fullMoveNumber = 0;
     isWhitesMove = true;
-    _selectedSquare = null;
+    _selectedCoord = null;
     boardState = BoardState();
     notifyListeners();
   }

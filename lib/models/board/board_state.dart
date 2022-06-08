@@ -1,11 +1,10 @@
-import 'package:my_own_chess/models/board/square.dart';
-import 'package:my_own_chess/models/pieces/piece.dart';
-
-import '../constants.dart';
+import 'package:my_own_chess/models/board/coordinate.dart';
+import 'package:my_own_chess/models/squares/piece.dart';
+import 'package:my_own_chess/models/squares/square.dart';
 
 class BoardState {
   /// A List of 64 squares which represents the chess board
-  final List<Square> squares;
+  final List<List<Square>> squares;
 
   /// Indicates the square behind a pawn which just advanced 2 fields.
   final String enPassantTarget;
@@ -25,45 +24,39 @@ class BoardState {
     return BoardState._internal(squares: _initialSquares());
   }
 
-  Piece? getPiece(String file, int rank) => squares
-      .firstWhere(
-        (square) => square.file == file && square.rank == rank,
-        orElse: () => Square(file, rank),
-      )
-      .piece;
+  Piece? getPiece(Coordinate loc) =>
+      (squares[loc.x][loc.y] is Piece) ? squares[loc.x][loc.y] as Piece : null;
 
-  Square findKingSquare(bool isWhite) => squares.firstWhere(
-      (square) => square.piece is King && square.piece?.isWhite == isWhite);
-
-  BoardState showLegalMoves(List<Square> legalMoves) {
-    return copyWith(
-      squares: squares.map((mappedSquare) {
-        if (legalMoves.any((legalMove) =>
-            legalMove.rank == mappedSquare.rank &&
-            legalMove.file == mappedSquare.file)) {
-          return mappedSquare.copyWith(
-            isLegalTarget: true,
-          );
-        }
-        return mappedSquare;
-      }).toList()
-        ..sort(),
-    );
+  Coordinate findKingSquare(bool isWhite) {
+    for (int i = 0; i < 8; i++) {
+      for (int j = 0; j < 8; j++) {
+        if (squares[i][j] is King && (squares[i][j] as King).isWhite == isWhite)
+          return Coordinate(i, j);
+      }
+    }
+    throw Exception('The ${isWhite ? 'white' : 'black'} King went missing!');
   }
 
-  BoardState clearLegalMoves() {
-    return copyWith(
+  BoardState showLegalMoves(List<Coordinate> legalMoves) {
+    List<List<Square>> resultSquares = squares;
+    for (Coordinate legalMove in legalMoves) {
+      resultSquares[legalMove.x][legalMove.y] =
+          squares[legalMove.x][legalMove.y].copyWith(isLegalTarget: true);
+    }
+    return copyWith(squares: resultSquares);
+  }
+
+  BoardState clearLegalMoves() => copyWith(
       squares: squares
-          .map((square) => square.copyWith(isLegalTarget: false))
-          .toList()
-            ..sort(),
-    );
-  }
+          .map((ranks) => ranks
+              .map((square) => square.copyWith(isLegalTarget: false))
+              .toList())
+          .toList());
 
   BoardState copyWith({
     String? enPassantTarget,
     String? castlingRights,
-    List<Square>? squares,
+    List<List<Square>>? squares,
   }) {
     return BoardState._internal(
       enPassantTarget: enPassantTarget ?? this.enPassantTarget,
@@ -72,56 +65,35 @@ class BoardState {
     );
   }
 
-  static List<Square> _initialSquares() {
-    List<Square> _addKnights() => [
-          Square('b', 1, piece: Knight()),
-          Square('g', 1, piece: Knight()),
-          Square('b', 8, piece: Knight(isWhite: false)),
-          Square('g', 8, piece: Knight(isWhite: false)),
-        ];
-
-    List<Square> _addBishops() => [
-          Square('c', 1, piece: Bishop()),
-          Square('f', 1, piece: Bishop()),
-          Square('c', 8, piece: Bishop(isWhite: false)),
-          Square('f', 8, piece: Bishop(isWhite: false)),
-        ];
-
-    List<Square> _addRooks() => [
-          Square('a', 1, piece: Rook()),
-          Square('h', 1, piece: Rook()),
-          Square('a', 8, piece: Rook(isWhite: false)),
-          Square('h', 8, piece: Rook(isWhite: false)),
-        ];
-
-    List<Square> _addKings() => [
-          Square('e', 1, piece: King()),
-          Square('e', 8, piece: King(isWhite: false)),
-        ];
-
-    List<Square> _addQueens() => [
-          Square('d', 1, piece: Queen()),
-          Square('d', 8, piece: Queen(isWhite: false)),
-        ];
-
-    List<Square> _addPawns() {
-      return [
-        for (String file in FILES) ...[
-          Square(file, 2, piece: Pawn()),
-          Square(file, 7, piece: Pawn(isWhite: false))
-        ]
+  static List<List<Square>> _initialSquares() => <List<Square>>[
+        // Black Pieces
+        [
+          Rook(isWhite: false),
+          Knight(isWhite: false),
+          Bishop(isWhite: false),
+          Queen(isWhite: false),
+          King(isWhite: false),
+          Bishop(isWhite: false),
+          Knight(isWhite: false),
+          Rook(isWhite: false)
+        ],
+        [for (int i = 0; i < 8; i++) Pawn(isWhite: false)],
+        //Empty Squares
+        for (int i = 3; i <= 6; i++)
+          [
+            for (int j = 0; j < 8; j++) Square(),
+          ],
+        //White Pieces
+        [for (int i = 0; i < 8; i++) Pawn()],
+        [
+          Rook(),
+          Knight(),
+          Bishop(),
+          Queen(),
+          King(),
+          Bishop(),
+          Knight(),
+          Rook()
+        ],
       ];
-    }
-
-    return <Square>[
-      ..._addPawns(),
-      ..._addRooks(),
-      ..._addKnights(),
-      ..._addBishops(),
-      ..._addQueens(),
-      ..._addKings(),
-      for (String file in FILES)
-        for (int rank in RANKS.getRange(2, 6).toList()) Square(file, rank)
-    ]..sort();
-  }
 }

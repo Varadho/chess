@@ -23,7 +23,7 @@ class GameStateDisplay extends StatelessWidget {
                 style: _textStyle,
               ),
               Text(
-                'Currently selected: ${state.selectedSquare}',
+                'Currently selected: ${state.selectedCoord}',
                 style: _textStyle,
               )
             ],
