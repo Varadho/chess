@@ -1,69 +1,64 @@
-import 'package:my_own_chess/models/board/coordinate.dart';
-import 'package:my_own_chess/models/squares/piece.dart';
-import 'package:my_own_chess/models/squares/square.dart';
+import 'package:copy_with_extension/copy_with_extension.dart';
+import 'package:equatable/equatable.dart';
 
-class BoardState {
+import '../squares/piece.dart';
+import 'coordinate.dart';
+
+part 'board_state.g.dart';
+
+@CopyWith()
+class BoardState extends Equatable {
   /// A List of 64 squares which represents the chess board
   final List<List<Square>> squares;
 
   /// Indicates the square behind a pawn which just advanced 2 fields.
-  final String enPassantTarget;
+  final Coordinate? enPassantTarget;
 
   ///Representation of current castling rights.
   final String castlingRights;
 
-  factory BoardState() => newGame();
-
-  const BoardState._internal({
-    this.enPassantTarget = '-',
+  const BoardState({
+    this.enPassantTarget = null,
     this.castlingRights = 'KQkq',
     this.squares = const [],
   });
 
-  static BoardState newGame() {
-    return BoardState._internal(squares: _initialSquares());
-  }
+  BoardState.newGame()
+      : castlingRights = 'KQkq',
+        enPassantTarget = null,
+        squares = _initialSquares();
 
-  Piece? getPiece(Coordinate loc) =>
-      (squares[loc.x][loc.y] is Piece) ? squares[loc.x][loc.y] as Piece : null;
+  Piece? getPiece(Coordinate c) =>
+      (squares[c.y][c.x] is Piece) ? squares[c.y][c.x] as Piece : null;
 
-  Coordinate findKingSquare(bool isWhite) {
-    for (int i = 0; i < 8; i++) {
-      for (int j = 0; j < 8; j++) {
+  Coordinate kingSquare({bool isWhite = true}) {
+    for (var i = 0; i < 8; i++) {
+      for (var j = 0; j < 8; j++) {
         if (squares[i][j] is King && (squares[i][j] as King).isWhite == isWhite)
-          return Coordinate(i, j);
+          return Coordinate(j, i);
       }
     }
     throw Exception('The ${isWhite ? 'white' : 'black'} King went missing!');
   }
 
   BoardState showLegalMoves(List<Coordinate> legalMoves) {
-    List<List<Square>> resultSquares = squares;
-    for (Coordinate legalMove in legalMoves) {
-      resultSquares[legalMove.x][legalMove.y] =
-          squares[legalMove.x][legalMove.y].copyWith(isLegalTarget: true);
+    final resultSquares = squares;
+    for (final move in legalMoves) {
+      resultSquares[move.y][move.x] =
+          squares[move.y][move.x].copyWith(isLegalTarget: true);
     }
     return copyWith(squares: resultSquares);
   }
 
   BoardState clearLegalMoves() => copyWith(
-      squares: squares
-          .map((ranks) => ranks
-              .map((square) => square.copyWith(isLegalTarget: false))
-              .toList())
-          .toList());
-
-  BoardState copyWith({
-    String? enPassantTarget,
-    String? castlingRights,
-    List<List<Square>>? squares,
-  }) {
-    return BoardState._internal(
-      enPassantTarget: enPassantTarget ?? this.enPassantTarget,
-      castlingRights: castlingRights ?? this.castlingRights,
-      squares: squares ?? this.squares,
-    );
-  }
+        squares: squares
+            .map(
+              (ranks) => ranks
+                  .map((square) => square.copyWith(isLegalTarget: false))
+                  .toList(),
+            )
+            .toList(),
+      );
 
   static List<List<Square>> _initialSquares() => <List<Square>>[
         // Black Pieces
@@ -95,5 +90,8 @@ class BoardState {
           Knight(),
           Rook()
         ],
-      ];
+      ].reversed.toList();
+
+  @override
+  List<Object?> get props => [enPassantTarget, castlingRights, squares];
 }

@@ -7,29 +7,28 @@ class King extends Piece {
   Widget figurine() => _figurineInternal('K');
 
   @override
-  King copyWith({bool? isWhite, bool? isLegalTarget}) {
-    return King(
-      isWhite: isWhite ?? this.isWhite,
-      isLegalTarget: isLegalTarget ?? this.isLegalTarget,
-    );
-  }
+  King copyWith({bool? isWhite, bool? isLegalTarget}) => King(
+        isWhite: isWhite ?? this.isWhite,
+        isLegalTarget: isLegalTarget ?? this.isLegalTarget,
+      );
 
   @override
-  List<Coordinate> legalMoves(BoardState boardState, Coordinate start) {
-    //TODO Implement this
-    throw UnimplementedError();
-    // List<Square> legalSquares = [];
-    // int squareIndex = boardState.squares
-    //     .indexWhere((sq) => sq.rank == square.rank && sq.file == square.file);
-    // for (int direction in DIRECTIONS) {
-    //   if (squareIndex + direction >= 0 &&
-    //       squareIndex + direction < 64 &&
-    //       (boardState.squares[squareIndex + direction].piece?.isWhite !=
-    //           isWhite) &&
-    //       _undefended(boardState, boardState.squares[squareIndex + direction]))
-    //     legalSquares.add(boardState.squares[squareIndex + direction]);
-    // }
-    // return legalSquares;
+  List<Coordinate> _legalMoves(BoardState boardState, Coordinate start) {
+    final result = <Coordinate>[];
+    for (final move in OMNI) {
+      final target = start + move;
+      if (!target.isOnTheBoard) {
+        continue;
+      }
+      if (boardState.getPiece(target) == null) {
+        result.add(target);
+        continue;
+      }
+      if (boardState.getPiece(target)!.isWhite != this.isWhite) {
+        result.add(target);
+      }
+    }
+    return result;
   }
 
   bool _undefended(BoardState boardState, Coordinate loc) {

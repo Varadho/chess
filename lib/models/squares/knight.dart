@@ -8,26 +8,20 @@ class Knight extends Piece {
   Widget figurine() => _figurineInternal('N');
 
   @override
-  Knight copyWith({bool? isWhite, bool? isLegalTarget}) {
-    return Knight(
-      isWhite: isWhite ?? this.isWhite,
-      isLegalTarget: isLegalTarget ?? this.isLegalTarget,
-    );
-  }
+  Knight copyWith({bool? isWhite, bool? isLegalTarget}) => Knight(
+        isWhite: isWhite ?? this.isWhite,
+        isLegalTarget: isLegalTarget ?? this.isLegalTarget,
+      );
 
   @override
-  List<Coordinate> legalMoves(BoardState boardState, Coordinate start) {
-    List<Coordinate> result = [];
-    for (int i = 0; i < 8; i++) {
-      for (int j = 0; j < 8; j++) {
-        if (((i - start.x) * (j - start.y)).abs() == 2) {
-          if (boardState.squares[i][j] is Piece &&
-              (boardState.squares[i][j] as Piece).isWhite == this.isWhite)
-            continue;
-          result.add(Coordinate(i, j));
-        }
-      }
-    }
-    return result;
-  }
+  List<Coordinate> _legalMoves(BoardState boardState, Coordinate start) =>
+      HORSEY
+          .map((move) => start + move)
+          .where(
+            (move) =>
+                move.isOnTheBoard &&
+                (boardState.getPiece(move) is! Piece ||
+                    boardState.getPiece(move)!.isWhite != this.isWhite),
+          )
+          .toList();
 }

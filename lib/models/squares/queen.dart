@@ -8,18 +8,17 @@ class Queen extends Piece {
   Widget figurine() => _figurineInternal('Q');
 
   @override
-  Queen copyWith({bool? isWhite, bool? isLegalTarget}) {
-    return Queen(
-      isWhite: isWhite ?? this.isWhite,
-      isLegalTarget: isLegalTarget ?? this.isLegalTarget,
-    );
-  }
+  Queen copyWith({bool? isWhite, bool? isLegalTarget}) => Queen(
+        isWhite: isWhite ?? this.isWhite,
+        isLegalTarget: isLegalTarget ?? this.isLegalTarget,
+      );
 
   @override
-  List<Coordinate> legalMoves(BoardState boardState, Coordinate square) {
-    return [
-      ...Bishop(isWhite: isWhite).legalMoves(boardState, square),
-      ...Rook(isWhite: isWhite).legalMoves(boardState, square),
-    ];
+  List<Coordinate> _legalMoves(BoardState boardState, Coordinate start) {
+    final result = <Coordinate>[];
+    for (final direction in OMNI) {
+      result.addAll(_legalMovesInDirection(boardState, start, direction));
+    }
+    return result;
   }
 }

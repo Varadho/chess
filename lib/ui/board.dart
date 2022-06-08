@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:my_own_chess/models/board/board_state.dart';
 import 'package:my_own_chess/models/board/board_state_notifier.dart';
 import 'package:my_own_chess/models/board/coordinate.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +11,7 @@ class Board extends StatelessWidget {
   Board({Key? key}) : super(key: key);
 
   Widget build(BuildContext context) {
-    BoardState boardState = Provider.of<BoardStateNotifier>(context).boardState;
+    final boardState = Provider.of<BoardStateNotifier>(context).boardState;
     return Center(
       child: Container(
         height: _calculateSideLength(context),
@@ -24,17 +23,17 @@ class Board extends StatelessWidget {
           borderRadius: BorderRadius.circular(4),
         ),
         child: GridView.builder(
+          reverse: true,
           itemCount: 64,
-          physics: null,
           shrinkWrap: true,
           gridDelegate:
               SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8),
           itemBuilder: (context, index) {
-            int x = (index / 8).floor();
-            int y = index % 8;
+            final x = index % 8;
+            final y = (index / 8).floor();
             return BoardSquare(
-              isWhite: (x - y) % 2 == 0,
-              square: boardState.squares[x][y],
+              isWhite: (y - x).isEven,
+              square: boardState.squares[y][x],
               coord: Coordinate(x, y),
             );
           },
@@ -44,7 +43,9 @@ class Board extends StatelessWidget {
   }
 
   double _calculateSideLength(BuildContext context) =>
-      min(MediaQuery.of(context).size.height,
-          MediaQuery.of(context).size.width) *
+      min(
+        MediaQuery.of(context).size.height,
+        MediaQuery.of(context).size.width,
+      ) *
       0.85;
 }
