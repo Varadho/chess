@@ -8,13 +8,17 @@ class Coordinate extends Equatable {
 
   Coordinate operator +(Vector v) => Coordinate(x + v.dx, y + v.dy);
 
+  Coordinate operator -(Vector v) => Coordinate(x - v.dx, y - v.dy);
+
   Vector distanceTo(Coordinate other) =>
       Vector(this.x - other.x, this.y - other.y);
 
   bool get isOnTheBoard => x < 8 && x >= 0 && y < 8 && y >= 0;
 
+  Coordinate copyWith({int? x, int? y}) => Coordinate(x ?? this.x, y ?? this.y);
+
   @override
-  String toString() => 'Coordinate(x:$x, y:$y)';
+  String toString() => 'Coord(x:$x, y:$y)';
 
   @override
   List<Object?> get props => [x, y];
@@ -32,6 +36,14 @@ class Vector extends Equatable {
 
   Vector operator /(int i) => Vector((dx / i).round(), (dy / i).round());
 
+  Vector operator -() => Vector(-dx, -dy);
+
+  Vector copyWith({int? dx, int? dy}) => Vector(dx ?? this.dx, dy ?? this.dy);
+
   @override
   List<Object?> get props => [dx, dy];
+}
+
+extension TimeExtension on int {
+  Duration get minutes => Duration(minutes: this);
 }

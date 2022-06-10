@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/board/board_state_notifier.dart';
+import '../models/board/coordinate.dart';
 
 class GameStateDisplay extends StatelessWidget {
   final TextStyle _textStyle =
       const TextStyle(fontSize: 24, color: Colors.black);
   @override
   Widget build(BuildContext context) {
-    final state = Provider.of<BoardStateNotifier>(context);
+    final state = Provider.of<GameStateNotifier>(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
@@ -23,7 +24,7 @@ class GameStateDisplay extends StatelessWidget {
                 style: _textStyle,
               ),
               Text(
-                'Currently selected: ${state.selectedCoord}',
+                'Currently selected: ${state.boardState.getPiece(state.selectedCoord ?? Coordinate(0, 0)).runtimeType}',
                 style: _textStyle,
               )
             ],
@@ -39,7 +40,7 @@ class GameStateDisplay extends StatelessWidget {
                 style: _textStyle,
               ),
               onPressed: () =>
-                  Provider.of<BoardStateNotifier>(context, listen: false)
+                  Provider.of<GameStateNotifier>(context, listen: false)
                       .resetGame(),
             ),
           ),

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/board/board_state_notifier.dart';
 import '../models/board/coordinate.dart';
+import '../models/constants.dart';
 import '../models/squares/piece.dart';
 
 class BoardSquare extends StatelessWidget {
@@ -19,26 +20,39 @@ class BoardSquare extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = Provider.of<BoardStateNotifier>(context);
+    final state = Provider.of<GameStateNotifier>(context);
+    final isKingAndCheck = square is King &&
+        state.boardState.isCheck(isWhite: (square as King).isWhite);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => _handleClick(state),
       child: Stack(
         children: [
           Container(
-            color: isWhite ? Colors.white : Colors.brown,
+            decoration: BoxDecoration(
+              color: isWhite ? Colors.white : Colors.brown,
+              gradient: isKingAndCheck
+                  ? RadialGradient(
+                      focalRadius: .3,
+                      colors: [
+                        Colors.red,
+                        if (isWhite) Colors.white else Colors.brown,
+                      ],
+                    )
+                  : null,
+            ),
             child: _squareContent(),
           ),
           Align(
             alignment: Alignment.bottomRight,
-            child: Text('${coord.x},${coord.y}'),
+            child: Text('${FILES[coord.x]}${RANKS[coord.y]}'),
           ),
         ],
       ),
     );
   }
 
-  void _handleClick(BoardStateNotifier state) {
+  void _handleClick(GameStateNotifier state) {
     // On click of a square containing one of the current players pieces
     final isCurrentPlayersPiece =
         square is Piece && (square as Piece).isWhite == state.isWhitesMove;

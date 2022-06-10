@@ -3,8 +3,9 @@ part of 'piece.dart';
 class Bishop extends Piece {
   Bishop({bool isWhite = true, bool isLegalTarget = false})
       : super(isWhite: isWhite, isLegalTarget: isLegalTarget);
+
   @override
-  Widget figurine() => _figurineInternal('B');
+  String toString() => isWhite ? 'B' : 'b';
 
   @override
   Bishop copyWith({bool? isWhite, bool? isLegalTarget}) => Bishop(
@@ -13,7 +14,7 @@ class Bishop extends Piece {
       );
 
   @override
-  List<Coordinate> _legalMoves(BoardState boardState, Coordinate start) {
+  List<Coordinate> _possibleMoves(BoardState boardState, Coordinate start) {
     final result = <Coordinate>[];
     for (final diagonal in DIAGONALS) {
       result.addAll(_legalMovesInDirection(boardState, start, diagonal));

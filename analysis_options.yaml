@@ -1,5 +1,3 @@
-include: package:flutter_lints/flutter.yaml
-
 analyzer:
   plugins:
     - dart_code_metrics
@@ -21,7 +19,7 @@ linter:
 
     # STYLE
     directives_ordering: true # do
-    lines_longer_than_80_chars: true # avoid
+    lines_longer_than_120_chars: true # avoid
 
     # DOCUMENTATION
     package_api_docs: true # do

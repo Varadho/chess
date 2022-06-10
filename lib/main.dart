@@ -1,11 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:my_own_chess/models/board/board_state_notifier.dart';
-import 'package:my_own_chess/ui/board.dart';
-import 'package:my_own_chess/ui/game_state_display.dart';
 import 'package:provider/provider.dart';
 
 import 'models/board/board_state.dart';
+import 'models/board/board_state_notifier.dart';
+import 'ui/board.dart';
+import 'ui/game_state_display.dart';
 
 void main() {
   runApp(
@@ -13,7 +12,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(
           create: (context) =>
-              BoardStateNotifier(boardState: BoardState.newGame()),
+              GameStateNotifier(boardState: BoardState.newGame()),
         ),
       ],
       child: ChessApp(),
@@ -24,29 +23,25 @@ void main() {
 class ChessApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Chess ',
-      home: Chess(),
-    );
-  }
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'Chess ',
+        home: Chess(),
+      );
 }
 
 class Chess extends StatelessWidget {
   Chess({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Board(),
-          Align(
-            alignment: Alignment.topCenter,
-            child: GameStateDisplay(),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Scaffold(
+        body: Stack(
+          children: [
+            Board(),
+            Align(
+              alignment: Alignment.topCenter,
+              child: GameStateDisplay(),
+            ),
+          ],
+        ),
+      );
 }

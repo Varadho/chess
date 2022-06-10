@@ -4,21 +4,17 @@ import '../squares/piece.dart';
 import 'board_state.dart';
 import 'coordinate.dart';
 
-class BoardStateNotifier extends ChangeNotifier with DiagnosticableTreeMixin {
+class GameStateNotifier extends ChangeNotifier with DiagnosticableTreeMixin {
   BoardState boardState;
   Coordinate? _selectedCoord;
   int halfMoveClock;
   int fullMoveNumber;
-  bool isWhitesMove;
+  bool get isWhitesMove => halfMoveClock.isEven;
 
   Coordinate? get selectedCoord => _selectedCoord;
 
-  Piece? get selectedPiece {
-    if (_selectedCoord != null &&
-        boardState.squares[_selectedCoord!.y][_selectedCoord!.x] is Piece)
-      return boardState.squares[_selectedCoord!.y][_selectedCoord!.x] as Piece;
-    return null;
-  }
+  Piece? get selectedPiece =>
+      boardState.getPiece(_selectedCoord ?? Coordinate(-1, -1));
 
   set selectedCoord(Coordinate? selectedSquare) {
     _selectedCoord = selectedSquare;
@@ -38,19 +34,17 @@ class BoardStateNotifier extends ChangeNotifier with DiagnosticableTreeMixin {
 
   void nextMove() {
     halfMoveClock++;
-    if (!isWhitesMove) {
+    if (isWhitesMove) {
       fullMoveNumber++;
     }
-    isWhitesMove = !isWhitesMove;
     selectedCoord = null;
     notifyListeners();
   }
 
-  BoardStateNotifier({
+  GameStateNotifier({
     required this.boardState,
     this.halfMoveClock = 0,
     this.fullMoveNumber = 0,
-    this.isWhitesMove = true,
   });
 
   void move({required Coordinate target}) {
@@ -60,7 +54,7 @@ class BoardStateNotifier extends ChangeNotifier with DiagnosticableTreeMixin {
     boardState.squares[target.y][target.x] = piece;
 
     boardState = boardState.clearLegalMoves();
-    //Extraworscht für Beförderung und enPassant
+    //Extrawoscht für Beförderung und enPassant
     if (piece is Pawn) {
       //Promoting
       if (target.y == (isWhitesMove ? 7 : 0)) {
@@ -84,15 +78,17 @@ class BoardStateNotifier extends ChangeNotifier with DiagnosticableTreeMixin {
     } else {
       boardState = boardState.copyWith(enPassantTarget: Coordinate(-1, -1));
     }
+    if (piece is King) {
+      //TODO Are we castling?
 
-    print('enPassantTarget: $enPassantTarget');
+      //TODO Modify castling rights
+    }
     nextMove();
   }
 
   void resetGame() {
     halfMoveClock = 0;
     fullMoveNumber = 0;
-    isWhitesMove = true;
     _selectedCoord = null;
     boardState = BoardState.newGame();
     notifyListeners();

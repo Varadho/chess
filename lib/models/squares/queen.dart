@@ -5,7 +5,7 @@ class Queen extends Piece {
       : super(isWhite: isWhite, isLegalTarget: isLegalTarget);
 
   @override
-  Widget figurine() => _figurineInternal('Q');
+  String toString() => isWhite ? 'Q' : 'q';
 
   @override
   Queen copyWith({bool? isWhite, bool? isLegalTarget}) => Queen(
@@ -14,7 +14,7 @@ class Queen extends Piece {
       );
 
   @override
-  List<Coordinate> _legalMoves(BoardState boardState, Coordinate start) {
+  List<Coordinate> _possibleMoves(BoardState boardState, Coordinate start) {
     final result = <Coordinate>[];
     for (final direction in OMNI) {
       result.addAll(_legalMovesInDirection(boardState, start, direction));

@@ -5,7 +5,7 @@ class Rook extends Piece {
       : super(isWhite: isWhite, isLegalTarget: isLegalTarget);
 
   @override
-  Widget figurine() => _figurineInternal('R');
+  String toString() => isWhite ? 'R' : 'r';
 
   @override
   Rook copyWith({bool? isWhite, bool? isLegalTarget}) => Rook(
@@ -14,7 +14,7 @@ class Rook extends Piece {
       );
 
   @override
-  List<Coordinate> _legalMoves(BoardState boardState, Coordinate start) {
+  List<Coordinate> _possibleMoves(BoardState boardState, Coordinate start) {
     final result = <Coordinate>[];
     for (final straight in STRAIGHTS) {
       result.addAll(_legalMovesInDirection(boardState, start, straight));
