@@ -3,8 +3,9 @@ part of 'piece.dart';
 class King extends Piece {
   King({bool isWhite = true, bool isLegalTarget = false})
       : super(isWhite: isWhite, isLegalTarget: isLegalTarget);
+
   @override
-  Widget figurine() => _figurineInternal('K');
+  String toString() => isWhite ? 'K' : 'k';
 
   @override
   King copyWith({bool? isWhite, bool? isLegalTarget}) => King(
@@ -13,7 +14,7 @@ class King extends Piece {
       );
 
   @override
-  List<Coordinate> _legalMoves(BoardState boardState, Coordinate start) {
+  List<Coordinate> _possibleMoves(BoardState boardState, Coordinate start) {
     final result = <Coordinate>[];
     for (final move in OMNI) {
       final target = start + move;
@@ -29,23 +30,5 @@ class King extends Piece {
       }
     }
     return result;
-  }
-
-  bool _undefended(BoardState boardState, Coordinate loc) {
-    // TODO Implement
-    throw UnimplementedError();
-    // bool defendedByBishop = Bishop(isWhite: isWhite)
-    //     .targets(boardState, loc)
-    //     .any((piece) =>
-    //         (piece is Bishop || piece is Queen) && piece.isWhite != isWhite);
-    //
-    // bool defendedByRook = Rook(isWhite: isWhite).targets(boardState, loc).any(
-    //     (piece) =>
-    //         (piece is Rook || piece is Queen) && piece.isWhite != isWhite);
-    //
-    // bool defendedByKnight = Knight(isWhite: isWhite)
-    //     .targets(boardState, loc)
-    //     .any((piece) => piece is Knight && piece.isWhite != isWhite);
-    // return !(defendedByBishop || defendedByRook || defendedByKnight);
   }
 }

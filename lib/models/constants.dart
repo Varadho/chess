@@ -1,5 +1,9 @@
 import 'board/coordinate.dart';
 
+const List<String> FILES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+const List<int> RANKS = [1, 2, 3, 4, 5, 6, 7, 8];
+
 const List<Vector> DIAGONALS = [
   Vector(1, 1),
   Vector(-1, 1),

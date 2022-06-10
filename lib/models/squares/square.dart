@@ -5,6 +5,9 @@ class Square {
 
   const Square({this.isLegalTarget = false});
 
+  @override
+  String toString() => ' ';
+
   Square copyWith({bool? isLegalTarget}) =>
       Square(isLegalTarget: isLegalTarget ?? this.isLegalTarget);
 }

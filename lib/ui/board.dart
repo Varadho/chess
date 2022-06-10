@@ -1,17 +1,17 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:my_own_chess/models/board/board_state_notifier.dart';
-import 'package:my_own_chess/models/board/coordinate.dart';
 import 'package:provider/provider.dart';
 
+import '../models/board/board_state_notifier.dart';
+import '../models/board/coordinate.dart';
 import 'board_square.dart';
 
 class Board extends StatelessWidget {
   Board({Key? key}) : super(key: key);
 
   Widget build(BuildContext context) {
-    final boardState = Provider.of<BoardStateNotifier>(context).boardState;
+    final boardState = Provider.of<GameStateNotifier>(context).boardState;
     return Center(
       child: Container(
         height: _calculateSideLength(context),

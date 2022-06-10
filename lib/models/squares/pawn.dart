@@ -5,7 +5,7 @@ class Pawn extends Piece {
       : super(isWhite: isWhite, isLegalTarget: isLegalTarget);
 
   @override
-  Widget figurine() => _figurineInternal('P');
+  String toString() => isWhite ? 'P' : 'p';
 
   @override
   Pawn copyWith({bool? isWhite, bool? isLegalTarget}) => Pawn(
@@ -14,7 +14,7 @@ class Pawn extends Piece {
       );
 
   @override
-  List<Coordinate> _legalMoves(BoardState boardState, Coordinate start) {
+  List<Coordinate> _possibleMoves(BoardState boardState, Coordinate start) {
     final result = <Coordinate>[];
     final attacks = this.isWhite
         ? [Vector(-1, 1), Vector(1, 1)]
