@@ -46,6 +46,10 @@ class BoardState extends Equatable {
   }
 
   BoardState simulateMove(Coordinate start, Coordinate target) {
+    if (!start.isOnTheBoard || !target.isOnTheBoard) {
+      throw Exception(
+          'Start is on the board: ${start.isOnTheBoard}\nTarget is on the board: ${target.isOnTheBoard}');
+    }
     final newSquares = squares.map((subList) => subList.toList()).toList();
     final piece = newSquares[start.y][start.x] as Piece;
     newSquares[start.y][start.x] = Square();

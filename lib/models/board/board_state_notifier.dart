@@ -48,6 +48,7 @@ class GameStateNotifier extends ChangeNotifier with DiagnosticableTreeMixin {
     this.fullMoveNumber = 0,
   });
 
+  // TODO Refactor this into smaller units. clean up while you're at it
   void move({required Coordinate target}) {
     //Move piece to target location by replacement
     final piece = boardState.getPiece(selectedCoord!)!;
@@ -58,31 +59,69 @@ class GameStateNotifier extends ChangeNotifier with DiagnosticableTreeMixin {
     enPassantTarget = null;
     boardState = boardState.clearLegalMoves();
 
-    //Extrawoscht für Beförderung und enPassant
-    if (piece is Pawn) {
-      //Promoting
-      if (target.y == (isWhitesMove ? 7 : 0)) {
-        boardState.squares[target.y][target.x] = Queen(isWhite: piece.isWhite);
-      }
-      //Taking en passant
-      if (target == enPassantTarget) {
-        boardState.squares[target.y + (isWhitesMove ? -1 : 1)][target.x] =
-            Square();
-      }
-      //Setting en passant
-      final isFirstMove = selectedCoord!.y == (isWhitesMove ? 1 : 6);
-      final movingTwoSquares = target.y == (isWhitesMove ? 3 : 4);
-      if (isFirstMove && movingTwoSquares) {
-        enPassantTarget = Coordinate(
-          target.x,
-          target.y + (isWhitesMove ? -1 : 1),
+    switch (piece.runtimeType) {
+      case Pawn: //Promoting
+        if (target.y == (isWhitesMove ? 7 : 0)) {
+          boardState.squares[target.y][target.x] =
+              Queen(isWhite: piece.isWhite);
+        }
+        //Taking en passant
+        if (target == enPassantTarget) {
+          boardState.squares[target.y + (isWhitesMove ? -1 : 1)][target.x] =
+              Square();
+        }
+        //Setting en passant
+        final isFirstMove = selectedCoord!.y == (isWhitesMove ? 1 : 6);
+        final movingTwoSquares = target.y == (isWhitesMove ? 3 : 4);
+        if (isFirstMove && movingTwoSquares) {
+          enPassantTarget = Coordinate(
+            target.x,
+            target.y + (isWhitesMove ? -1 : 1),
+          );
+        }
+        break;
+      case King:
+        if ((target - _selectedCoord!).dx == 2 &&
+            boardState.castlingRights.contains(isWhitesMove ? 'K' : 'k')) {
+          final rook = boardState.getPiece(Coordinate(7, target.y))!;
+          boardState.squares[target.y][7] = Square();
+          boardState.squares[target.y][5] = rook;
+        }
+        if ((target - _selectedCoord!).dx == -2 &&
+            boardState.castlingRights.contains(isWhitesMove ? 'Q' : 'q')) {
+          final rook = boardState.getPiece(Coordinate(0, target.y))!;
+          boardState.squares[target.y][0] = Square();
+          boardState.squares[target.y][3] = rook;
+        }
+        boardState = boardState.copyWith(
+          castlingRights: boardState.castlingRights
+              .replaceFirst(isWhitesMove ? 'K' : 'k', '')
+              .replaceFirst(isWhitesMove ? 'Q' : 'q', ''),
         );
-      }
-    }
-    if (piece is King) {
-      //TODO Are we castling?
-
-      //TODO Modify castling rights
+        break;
+      case Rook:
+        if (_selectedCoord!.x == 0 || _selectedCoord!.x == 7) {
+          final kingSide = _selectedCoord!.x == 7;
+          final toBeRemoved;
+          if (kingSide) {
+            if (isWhitesMove) {
+              toBeRemoved = 'K';
+            } else {
+              toBeRemoved = 'k';
+            }
+          } else {
+            if (isWhitesMove) {
+              toBeRemoved = 'Q';
+            } else {
+              toBeRemoved = 'q';
+            }
+          }
+          boardState = boardState.copyWith(
+            castlingRights:
+                boardState.castlingRights.replaceFirst(toBeRemoved, ''),
+          );
+        }
+        break;
     }
     nextMove();
   }

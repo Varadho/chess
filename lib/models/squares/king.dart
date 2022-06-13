@@ -29,6 +29,38 @@ class King extends Piece {
         result.add(target);
       }
     }
+    // TODO isCheck on current board state creates infinite loop
+    if (!boardState.isCheck(isWhite: isWhite)) {
+      //King side
+      if (boardState.castlingRights.contains('${isWhite ? 'K' : 'k'}') &&
+          //Squares between king and rook are empty (both are null)
+          boardState.getPiece(start + Vector(1, 0)) ==
+              boardState.getPiece(start + Vector(2, 0)) &&
+          //Not standing in or moving through check
+          // !boardState.simulateMove(start, start).isCheck(isWhite: isWhite) &&
+          !boardState
+              .simulateMove(start, start + Vector(1, 0))
+              .isCheck(isWhite: isWhite)) {
+        result.add(start + Vector(2, 0));
+      }
+      //Queen side
+      if (boardState.castlingRights.contains('${isWhite ? 'Q' : 'q'}') &&
+          //Squares between king and rook are empty
+          boardState.getPiece(start + Vector(-1, 0)) ==
+              boardState.getPiece(start + Vector(-2, 0)) &&
+          boardState.getPiece(start + Vector(-3, 0)) == null &&
+          //Not standing in or moving through check
+          // !boardState.simulateMove(start, start).isCheck(isWhite: isWhite) &&
+          !boardState
+              .simulateMove(start, start + Vector(-1, 0))
+              .isCheck(isWhite: isWhite) &&
+          !boardState
+              .simulateMove(start, start + Vector(-2, 0))
+              .isCheck(isWhite: isWhite)) {
+        result.add(start + Vector(-2, 0));
+      }
+    }
+
     return result;
   }
 }

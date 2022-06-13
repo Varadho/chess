@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../board/board_state.dart';
 import '../board/coordinate.dart';
@@ -64,22 +65,11 @@ abstract class Piece extends Square {
   }
 
   Widget figurine() => Center(
-        child: Container(
-          height: 32,
-          width: 32,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            color: isWhite ? Color(0xFFFFFFE8) : Colors.black,
-          ),
-          child: Center(
-            child: Text(
-              toString().toUpperCase(),
-              style: TextStyle(
-                color: isWhite ? Colors.black : Colors.white,
-                fontSize: 20,
-              ),
-            ),
-          ),
+        child: SvgPicture.asset(
+          '${isWhite ? 'white' : 'black'}_$runtimeType.svg',
+          height: 80,
+          width: 80,
+          fit: BoxFit.fill,
         ),
       );
 }

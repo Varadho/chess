@@ -8,7 +8,7 @@ class Coordinate extends Equatable {
 
   Coordinate operator +(Vector v) => Coordinate(x + v.dx, y + v.dy);
 
-  Coordinate operator -(Vector v) => Coordinate(x - v.dx, y - v.dy);
+  Vector operator -(Coordinate c) => Vector(x - c.x, y - c.y);
 
   Vector distanceTo(Coordinate other) =>
       Vector(this.x - other.x, this.y - other.y);
