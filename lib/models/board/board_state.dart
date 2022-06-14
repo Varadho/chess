@@ -72,9 +72,9 @@ class BoardState extends Equatable {
     final pawnCheck = Pawn(isWhite: isWhite)
         .targetPieces(this, start)
         .any((piece) => piece is Pawn);
-    final kingCheck = King(isWhite: isWhite)
-        .targetPieces(this, start)
-        .any((piece) => piece is King);
+    // We use a different approach for the King, because calling isCheck for castling moves creates an infinite loop
+    final kingCheck = (kingSquare(isWhite: !isWhite) - start).dx.abs() <= 1 &&
+        (kingSquare(isWhite: !isWhite) - start).dy.abs() <= 1;
 
     return rookCheck || bishopCheck || knightCheck || pawnCheck || kingCheck;
   }
