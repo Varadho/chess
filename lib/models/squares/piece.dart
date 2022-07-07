@@ -67,8 +67,8 @@ abstract class Piece extends Square {
   Widget figurine() => Center(
         child: SvgPicture.asset(
           '${isWhite ? 'white' : 'black'}_$runtimeType.svg',
-          height: 80,
-          width: 80,
+          height: 93,
+          width: 93,
           fit: BoxFit.fill,
         ),
       );

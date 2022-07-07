@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'models/board/board_state.dart';
-import 'models/board/board_state_notifier.dart';
+import 'models/board/game_state_notifier.dart';
 import 'ui/board.dart';
 import 'ui/game_state_display.dart';
 
@@ -12,7 +12,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(
           create: (context) =>
-              GameStateNotifier(boardState: BoardState.newGame()),
+              GameStateNotifier(boardStates: [BoardState.newGame()]),
         ),
       ],
       child: ChessApp(),
@@ -38,7 +38,7 @@ class Chess extends StatelessWidget {
           children: [
             Board(),
             Align(
-              alignment: Alignment.topCenter,
+              alignment: Alignment.centerRight,
               child: GameStateDisplay(),
             ),
           ],

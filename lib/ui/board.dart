@@ -3,15 +3,16 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/board/board_state_notifier.dart';
 import '../models/board/coordinate.dart';
+import '../models/board/game_state_notifier.dart';
 import 'board_square.dart';
 
 class Board extends StatelessWidget {
   Board({Key? key}) : super(key: key);
 
   Widget build(BuildContext context) {
-    final boardState = Provider.of<GameStateNotifier>(context).boardState;
+    final currentBoardState =
+        Provider.of<GameStateNotifier>(context).boardState;
     return Center(
       child: Container(
         height: _calculateSideLength(context),
@@ -33,7 +34,7 @@ class Board extends StatelessWidget {
             final y = (index / 8).floor();
             return BoardSquare(
               isWhite: (y - x).isEven,
-              square: boardState.squares[y][x],
+              square: currentBoardState.squares[y][x],
               coord: Coordinate(x, y),
             );
           },
