@@ -18,7 +18,7 @@ class Coordinate extends Equatable {
   Coordinate copyWith({int? x, int? y}) => Coordinate(x ?? this.x, y ?? this.y);
 
   @override
-  String toString() => 'Coord(x:$x, y:$y)';
+  String toString() => 'C($x, $y)';
 
   @override
   List<Object?> get props => [x, y];

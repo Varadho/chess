@@ -45,16 +45,32 @@ class BoardState extends Equatable {
     throw Exception('The ${isWhite ? 'white' : 'black'} King went missing!');
   }
 
-  BoardState simulateMove(Coordinate start, Coordinate target) {
-    if (!start.isOnTheBoard || !target.isOnTheBoard) {
-      throw Exception(
-          'Start is on the board: ${start.isOnTheBoard}\nTarget is on the board: ${target.isOnTheBoard}');
+  Coordinate findPieceCoordinate(Piece target) {
+    for (var i = 0; i < 8; i++) {
+      for (var j = 0; j < 8; j++) {
+        if (squares[i][j] == target) {
+          return Coordinate(j, i);
+        }
+      }
     }
-    final newSquares = squares.map((subList) => subList.toList()).toList();
-    final piece = newSquares[start.y][start.x] as Piece;
-    newSquares[start.y][start.x] = Square();
-    newSquares[target.y][target.x] = piece;
-    return copyWith(squares: newSquares);
+    throw Exception(
+      'The ${target.isWhite ? 'white' : 'black'} ${target.runtimeType} went missing!',
+    );
+  }
+
+  BoardState simulateMove(Coordinate start, Coordinate target) {
+    if (!start.isOnTheBoard) {
+      throw Exception('Start is NOT on the board.');
+    }
+    if (!target.isOnTheBoard) {
+      throw Exception('Target is NOT on the board.');
+    }
+
+    final squaresCopy = squares.map((subList) => subList.toList()).toList();
+    final piece = squaresCopy[start.y][start.x] as Piece;
+    squaresCopy[start.y][start.x] = Square();
+    squaresCopy[target.y][target.x] = piece;
+    return copyWith(squares: squaresCopy);
   }
 
   bool isCheck({bool isWhite = true}) {
@@ -79,15 +95,32 @@ class BoardState extends Equatable {
     return rookCheck || bishopCheck || knightCheck || pawnCheck || kingCheck;
   }
 
+  // TODO: Think of a nicer way to pass the square to legalMoves
+  bool isCheckmate({bool isWhite = true}) => !squares.any(
+        (file) => file.any(
+          (square) =>
+              square is Piece &&
+              square.isWhite == isWhite &&
+              square
+                  .legalMoves(this, this.findPieceCoordinate(square))
+                  .isNotEmpty,
+        ),
+      );
+
+  /// Display the current [BoardState] with legal moves indicated by a green highlight
+  /// accepts any List of coordinates and sets the [isLegalTarget] parameter for the squares of said coordinates
   BoardState showLegalMoves(List<Coordinate> legalMoves) {
     final resultSquares = squares;
     for (final move in legalMoves) {
-      resultSquares[move.y][move.x] =
-          squares[move.y][move.x].copyWith(isLegalTarget: true);
+      if (move.isOnTheBoard) {
+        resultSquares[move.y][move.x] =
+            squares[move.y][move.x].copyWith(isLegalTarget: true);
+      }
     }
     return copyWith(squares: resultSquares);
   }
 
+  /// Set the [isLegalTarget] flag on all squares to false
   BoardState clearLegalMoves() => copyWith(
         squares: squares
             .map(
@@ -98,6 +131,7 @@ class BoardState extends Equatable {
             .toList(),
       );
 
+  /// Board squares with the set-up for a new game.
   static List<List<Square>> _initialSquares() => <List<Square>>[
         // Black Pieces
         [

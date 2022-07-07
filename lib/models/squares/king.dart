@@ -29,7 +29,6 @@ class King extends Piece {
         result.add(target);
       }
     }
-    // TODO isCheck on current board state creates infinite loop
     if (!boardState.isCheck(isWhite: isWhite)) {
       //King side
       if (boardState.castlingRights.contains('${isWhite ? 'K' : 'k'}') &&

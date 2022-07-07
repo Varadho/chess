@@ -55,13 +55,13 @@ class GameStateNotifier extends ChangeNotifier with DiagnosticableTreeMixin {
     boardState.squares[selectedCoord!.y][selectedCoord!.x] = Square();
     boardState.squares[target.y][target.x] = piece;
 
-    //Restore pristine board state
-    enPassantTarget = null;
     boardState = boardState.clearLegalMoves();
 
     switch (piece.runtimeType) {
-      case Pawn: //Promoting
+      case Pawn:
+        //Promoting
         if (target.y == (isWhitesMove ? 7 : 0)) {
+          //TODO Make it possible to choose a piece
           boardState.squares[target.y][target.x] =
               Queen(isWhite: piece.isWhite);
         }
@@ -70,10 +70,11 @@ class GameStateNotifier extends ChangeNotifier with DiagnosticableTreeMixin {
           boardState.squares[target.y + (isWhitesMove ? -1 : 1)][target.x] =
               Square();
         }
+        enPassantTarget = null;
         //Setting en passant
         final isFirstMove = selectedCoord!.y == (isWhitesMove ? 1 : 6);
-        final movingTwoSquares = target.y == (isWhitesMove ? 3 : 4);
-        if (isFirstMove && movingTwoSquares) {
+        final isMovingTwoSquares = target.y == (isWhitesMove ? 3 : 4);
+        if (isFirstMove && isMovingTwoSquares) {
           enPassantTarget = Coordinate(
             target.x,
             target.y + (isWhitesMove ? -1 : 1),
@@ -98,6 +99,7 @@ class GameStateNotifier extends ChangeNotifier with DiagnosticableTreeMixin {
               .replaceFirst(isWhitesMove ? 'K' : 'k', '')
               .replaceFirst(isWhitesMove ? 'Q' : 'q', ''),
         );
+        enPassantTarget = null;
         break;
       case Rook:
         if (_selectedCoord!.x == 0 || _selectedCoord!.x == 7) {
@@ -121,9 +123,17 @@ class GameStateNotifier extends ChangeNotifier with DiagnosticableTreeMixin {
                 boardState.castlingRights.replaceFirst(toBeRemoved, ''),
           );
         }
+        enPassantTarget = null;
         break;
+      default:
+        enPassantTarget = null;
     }
-    nextMove();
+
+    if (boardState.isCheckmate(isWhite: !isWhitesMove)) {
+      resetGame();
+    } else {
+      nextMove();
+    }
   }
 
   void resetGame() {
