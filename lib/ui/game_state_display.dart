@@ -38,40 +38,40 @@ class GameStateDisplay extends StatelessWidget {
             style: _textStyle,
           ),
           //
-          Container(
-            decoration: BoxDecoration(border: Border.all()),
-            child: SizedBox(
-              width: 145,
-              height: 280,
-              child: ListView.separated(
-                shrinkWrap: true,
-                itemCount: ((state.boardStates.length - 1) / 2).ceil(),
-                itemBuilder: (context, index) => Row(
-                  children: [
-                    Text((index + 1).toString().padLeft(3)),
-                    TextButton(
-                      onPressed: () {
-                        state.selectedBoardStateIndex = index * 2;
-                      },
-                      child: Text(
-                        state.boardStates[index * 2 + 1].castlingRights,
-                      ),
-                    ),
-                    if ((index * 2 + 2) < state.boardStates.length)
-                      TextButton(
-                        onPressed: () {
-                          state.selectedBoardStateIndex = index * 2 + 1;
-                        },
-                        child: Text(
-                          state.boardStates[index * 2 + 2].castlingRights,
-                        ),
-                      )
-                  ],
-                ),
-                separatorBuilder: (context, index) => Divider(),
-              ),
-            ),
-          ),
+          // Container(
+          //   decoration: BoxDecoration(border: Border.all()),
+          //   child: SizedBox(
+          //     width: 145,
+          //     height: 280,
+          //     child: ListView.separated(
+          //       shrinkWrap: true,
+          //       itemCount: ((state.boardStates.length - 1) / 2).ceil(),
+          //       itemBuilder: (context, index) => Row(
+          //         children: [
+          //           Text((index + 1).toString().padLeft(3)),
+          //           TextButton(
+          //             onPressed: () {
+          //               state.selectedBoardStateIndex = index * 2;
+          //             },
+          //             child: Text(
+          //               state.boardStates[index * 2 + 1].castlingRights,
+          //             ),
+          //           ),
+          //           if ((index * 2 + 2) < state.boardStates.length)
+          //             TextButton(
+          //               onPressed: () {
+          //                 state.selectedBoardStateIndex = index * 2 + 1;
+          //               },
+          //               child: Text(
+          //                 state.boardStates[index * 2 + 2].castlingRights,
+          //               ),
+          //             )
+          //         ],
+          //       ),
+          //       separatorBuilder: (context, index) => Divider(),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

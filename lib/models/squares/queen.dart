@@ -14,8 +14,8 @@ class Queen extends Piece {
       );
 
   @override
-  List<Coordinate> _possibleMoves(BoardState boardState, Coordinate start) {
-    final result = <Coordinate>[];
+  List<Move> _possibleMoves(BoardState boardState, Coordinate start) {
+    final result = <Move>[];
     for (final direction in OMNI) {
       result.addAll(_legalMovesInDirection(boardState, start, direction));
     }

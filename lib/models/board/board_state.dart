@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 
 import '../squares/piece.dart';
 import 'coordinate.dart';
+import 'move.dart';
 
 part 'board_state.g.dart';
 
@@ -58,13 +59,11 @@ class BoardState extends Equatable {
     );
   }
 
-  BoardState simulateMove(Coordinate start, Coordinate target) {
-    if (!start.isOnTheBoard) {
-      throw Exception('Start is NOT on the board.');
-    }
-    if (!target.isOnTheBoard) {
-      throw Exception('Target is NOT on the board.');
-    }
+  BoardState applyMove(Move move) {
+    final start = move.start;
+    final target = move.target;
+    assert(start.isOnTheBoard, 'Start coordinate is NOT on the board');
+    assert(target.isOnTheBoard, 'Target coordinate is NOT on the board.');
 
     final squaresCopy = squares.map((subList) => subList.toList()).toList();
     final piece = squaresCopy[start.y][start.x] as Piece;
@@ -109,9 +108,9 @@ class BoardState extends Equatable {
 
   /// Display the current [BoardState] with legal moves indicated by a green highlight
   /// accepts any List of coordinates and sets the [isLegalTarget] parameter for the squares of said coordinates
-  BoardState showLegalMoves(List<Coordinate> legalMoves) {
+  BoardState showLegalTargetCoordinates(List<Coordinate> legalTargets) {
     final resultSquares = squares;
-    for (final move in legalMoves) {
+    for (final move in legalTargets) {
       if (move.isOnTheBoard) {
         resultSquares[move.y][move.x] =
             squares[move.y][move.x].copyWith(isLegalTarget: true);

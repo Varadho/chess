@@ -5,80 +5,63 @@ import 'board_state.dart';
 import 'coordinate.dart';
 
 class GameStateNotifier extends ChangeNotifier with DiagnosticableTreeMixin {
-  List<BoardState> boardStates;
-  int _selectedBoardStateIndex;
+  BoardState boardState;
   Coordinate? _selectedCoord;
   int halfMoveClock;
-  int fullMoveNumber;
+  int lastCaptureOrPawnMove;
 
-  BoardState get boardState => boardStates[_selectedBoardStateIndex];
-
-  bool get isLatestBoardState => boardState == lastBoardState;
-
-  int get selectedBoardStateIndex => _selectedBoardStateIndex;
-
-  void set selectedBoardStateIndex(int newIndex) {
-    _selectedBoardStateIndex = newIndex;
-    notifyListeners();
-  }
-
-  BoardState get lastBoardState => boardStates.last;
-
-  void set lastBoardState(BoardState boardState) => boardStates
-      .replaceRange(boardStates.length - 1, boardStates.length, [boardState]);
+  int get fullMoveNumber => (halfMoveClock / 2).round();
 
   bool get isWhitesMove => halfMoveClock.isEven;
 
   Coordinate? get selectedCoord => _selectedCoord;
 
   Piece? get selectedPiece =>
-      lastBoardState.getPiece(_selectedCoord ?? Coordinate(-1, -1));
+      boardState.getPiece(_selectedCoord ?? Coordinate(-1, -1));
 
   set selectedCoord(Coordinate? selectedSquare) {
     _selectedCoord = selectedSquare;
-    lastBoardState = lastBoardState.clearLegalMoves();
+    boardState.clearLegalMoves();
     if (selectedPiece != null) {
-      lastBoardState = lastBoardState.showLegalMoves(
-        selectedPiece!.legalMoves(lastBoardState, _selectedCoord!),
+      boardState.showLegalTargetCoordinates(
+        selectedPiece!
+            .legalMoves(boardState, _selectedCoord!)
+            .map<Coordinate>((move) => move.target)
+            .toList(),
       );
     }
     notifyListeners();
   }
 
-  Coordinate? get enPassantTarget => lastBoardState.enPassantTarget;
+  Coordinate? get enPassantTarget => boardState.enPassantTarget;
 
   set enPassantTarget(Coordinate? coordinate) =>
-      lastBoardState = lastBoardState.copyWith(enPassantTarget: coordinate);
+      boardState..copyWith(enPassantTarget: coordinate);
 
   void nextMove() {
     halfMoveClock++;
-    if (isWhitesMove) {
-      fullMoveNumber++;
-    }
-    selectedBoardStateIndex = boardStates.length - 1;
     selectedCoord = null;
     notifyListeners();
   }
 
   GameStateNotifier({
-    required this.boardStates,
+    required this.boardState,
     this.halfMoveClock = 0,
-    this.fullMoveNumber = 0,
-    int currentBoardStateIndex = 0,
-  }) : _selectedBoardStateIndex = currentBoardStateIndex;
+    this.lastCaptureOrPawnMove = 0,
+  });
 
   // TODO Refactor this into smaller units. clean up while you're at it
   void move({required Coordinate target}) {
     //Move piece to target location by replacement
-    final piece = lastBoardState.getPiece(selectedCoord!)!;
-    final newSquares = lastBoardState.squares
-      ..[selectedCoord!.y][selectedCoord!.x] = Square()
-      ..[target.y][target.x] = piece;
-    lastBoardState.squares[selectedCoord!.y][selectedCoord!.x] = Square();
+    final piece = boardState.getPiece(selectedCoord!)!;
+    boardState..clearLegalMoves();
 
-    lastBoardState = lastBoardState.clearLegalMoves();
+    final newSquares =
+        boardState.squares.map((files) => files.toList()).toList()
+          ..[selectedCoord!.y][selectedCoord!.x] = Square()
+          ..[target.y][target.x] = piece;
 
-    var nextBoardState = lastBoardState.copyWith(squares: newSquares);
+    var nextBoardState = boardState.copyWith(squares: newSquares);
 
     switch (piece.runtimeType) {
       case Pawn:
@@ -155,17 +138,15 @@ class GameStateNotifier extends ChangeNotifier with DiagnosticableTreeMixin {
     if (boardState.isCheckmate(isWhite: !isWhitesMove)) {
       resetGame();
     } else {
-      boardStates.add(nextBoardState);
+      boardState = nextBoardState.clearLegalMoves();
       nextMove();
     }
   }
 
   void resetGame() {
     halfMoveClock = 0;
-    fullMoveNumber = 0;
-    selectedBoardStateIndex = 0;
     _selectedCoord = null;
-    boardStates = [BoardState.newGame()];
+    boardState = BoardState.newGame();
     notifyListeners();
   }
 }

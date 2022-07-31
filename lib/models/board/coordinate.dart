@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+/// A two dimensional coordinate which allows for manipulation of various
 class Coordinate extends Equatable {
   final int x;
   final int y;
@@ -10,6 +11,8 @@ class Coordinate extends Equatable {
 
   Vector operator -(Coordinate c) => Vector(x - c.x, y - c.y);
 
+  Coordinate operator -() => Coordinate(-x, -y);
+
   Vector distanceTo(Coordinate other) =>
       Vector(this.x - other.x, this.y - other.y);
 
@@ -18,7 +21,7 @@ class Coordinate extends Equatable {
   Coordinate copyWith({int? x, int? y}) => Coordinate(x ?? this.x, y ?? this.y);
 
   @override
-  String toString() => 'C($x, $y)';
+  String toString() => '($x, $y)';
 
   @override
   List<Object?> get props => [x, y];

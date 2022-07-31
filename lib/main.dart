@@ -12,7 +12,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(
           create: (context) =>
-              GameStateNotifier(boardStates: [BoardState.newGame()]),
+              GameStateNotifier(boardState: BoardState.newGame()),
         ),
       ],
       child: ChessApp(),

@@ -14,8 +14,8 @@ class Bishop extends Piece {
       );
 
   @override
-  List<Coordinate> _possibleMoves(BoardState boardState, Coordinate start) {
-    final result = <Coordinate>[];
+  List<Move> _possibleMoves(BoardState boardState, Coordinate start) {
+    final result = <Move>[];
     for (final diagonal in DIAGONALS) {
       result.addAll(_legalMovesInDirection(boardState, start, diagonal));
     }

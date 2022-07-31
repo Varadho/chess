@@ -14,19 +14,19 @@ class King extends Piece {
       );
 
   @override
-  List<Coordinate> _possibleMoves(BoardState boardState, Coordinate start) {
-    final result = <Coordinate>[];
+  List<Move> _possibleMoves(BoardState boardState, Coordinate start) {
+    final result = <Move>[];
     for (final move in OMNI) {
       final target = start + move;
       if (!target.isOnTheBoard) {
         continue;
       }
       if (boardState.getPiece(target) == null) {
-        result.add(target);
+        result.add(Move(start: start, target: target));
         continue;
       }
       if (boardState.getPiece(target)!.isWhite != this.isWhite) {
-        result.add(target);
+        result.add(Move(start: start, target: target));
       }
     }
     if (!boardState.isCheck(isWhite: isWhite)) {
@@ -38,9 +38,9 @@ class King extends Piece {
           //Not standing in or moving through check
           // !boardState.simulateMove(start, start).isCheck(isWhite: isWhite) &&
           !boardState
-              .simulateMove(start, start + Vector(1, 0))
+              .applyMove(Move(start: start, target: start + Vector(1, 0)))
               .isCheck(isWhite: isWhite)) {
-        result.add(start + Vector(2, 0));
+        result.add(Move(start: start, target: start + Vector(2, 0)));
       }
       //Queen side
       if (boardState.castlingRights.contains('${isWhite ? 'Q' : 'q'}') &&
@@ -51,12 +51,17 @@ class King extends Piece {
           //Not standing in or moving through check
           // !boardState.simulateMove(start, start).isCheck(isWhite: isWhite) &&
           !boardState
-              .simulateMove(start, start + Vector(-1, 0))
+              .applyMove(Move(start: start, target: start + Vector(-1, 0)))
               .isCheck(isWhite: isWhite) &&
           !boardState
-              .simulateMove(start, start + Vector(-2, 0))
+              .applyMove(
+                Move(
+                  start: start,
+                  target: start + Vector(-2, 0),
+                ),
+              )
               .isCheck(isWhite: isWhite)) {
-        result.add(start + Vector(-2, 0));
+        result.add(Move(start: start, target: start + Vector(-2, 0)));
       }
     }
 

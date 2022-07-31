@@ -14,14 +14,14 @@ class Knight extends Piece {
       );
 
   @override
-  List<Coordinate> _possibleMoves(BoardState boardState, Coordinate start) {
+  List<Move> _possibleMoves(BoardState boardState, Coordinate start) {
     final result = HORSEY
-        .map((move) => start + move)
+        .map<Move>((move) => Move(start: start, target: start + move))
         .where(
           (move) =>
-              move.isOnTheBoard &&
-              (boardState.getPiece(move) == null ||
-                  boardState.getPiece(move)!.isWhite != this.isWhite),
+              move.target.isOnTheBoard &&
+              (boardState.getPiece(move.target) == null ||
+                  boardState.getPiece(move.target)!.isWhite != this.isWhite),
         )
         .toList();
     return result;

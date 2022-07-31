@@ -24,7 +24,7 @@ class BoardSquare extends StatelessWidget {
         state.boardState.isCheck(isWhite: (square as King).isWhite);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: state.isLatestBoardState ? () => _handleClick(state) : null,
+      onTap: () => _handleClick(state),
       child: Stack(
         children: [
           Container(
@@ -32,7 +32,7 @@ class BoardSquare extends StatelessWidget {
               color: isWhite ? Colors.white : Colors.brown,
               gradient: isKingAndCheck
                   ? RadialGradient(
-                      focalRadius: .3,
+                      focalRadius: 0.3,
                       colors: [
                         Colors.red,
                         if (isWhite) Colors.white else Colors.brown,
@@ -54,27 +54,25 @@ class BoardSquare extends StatelessWidget {
   }
 
   void _handleClick(GameStateNotifier state) {
-    if (state.boardState == state.lastBoardState) {
-      print('handling click!');
-      // On click of a square containing one of the current players pieces
-      final isCurrentPlayersPiece =
-          square is Piece && (square as Piece).isWhite == state.isWhitesMove;
+    print('${new DateTime.now()} handling click!');
+    // On click of a square containing one of the current players pieces
+    final isCurrentPlayersPiece =
+        square is Piece && (square as Piece).isWhite == state.isWhitesMove;
 
-      // No piece is selected and the square does not contain the current players color
-      final hasNoAction = !isCurrentPlayersPiece && !square.isLegalTarget;
-      if (hasNoAction) {
-        state.selectedCoord = null;
-        return;
-      }
-      if (isCurrentPlayersPiece) {
-        state.selectedCoord = coord;
-        return;
-      }
-      // If a piece is already selected and the clicked square is a legal target.
-      final validMove = (state.selectedCoord != null) && square.isLegalTarget;
-      if (validMove) {
-        state.move(target: coord);
-      }
+    // No piece is selected and the square does not contain the current players color
+    final hasNoAction = !isCurrentPlayersPiece && !square.isLegalTarget;
+    if (hasNoAction) {
+      state.selectedCoord = null;
+      return;
+    }
+    if (isCurrentPlayersPiece) {
+      state.selectedCoord = coord;
+      return;
+    }
+    // If a piece is already selected and the clicked square is a legal target.
+    final validMove = (state.selectedCoord != null) && square.isLegalTarget;
+    if (validMove) {
+      state.move(target: coord);
     }
   }
 
