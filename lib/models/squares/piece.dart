@@ -15,6 +15,7 @@ part 'queen.dart';
 part 'rook.dart';
 part 'square.dart';
 
+/// Abstract class which represents a higher level of support logic for all pieces
 abstract class Piece extends Square {
   final bool isWhite;
 
@@ -24,10 +25,6 @@ abstract class Piece extends Square {
   /// Calculates a list of possible moves for any given piece, based on their movement pattern.
   /// Concrete implementations to be found in each specific piece class.
   List<Move> _possibleMoves(BoardState boardState, Coordinate start);
-
-  // TODO Can I delete this?
-  @override
-  Piece copyWith({bool? isWhite, bool? isLegalTarget});
 
   /// Filters all possible moves, so that they don't result in check.
   List<Move> legalMoves(BoardState boardState, Coordinate start) =>
@@ -70,7 +67,13 @@ abstract class Piece extends Square {
         continue;
       }
       if (boardState.getPiece(c)!.isWhite != this.isWhite) {
-        result.add(Move(start: start, target: c));
+        result.add(
+          Capture(
+            start: start,
+            target: c,
+            capturedPiece: boardState.getPiece(c)!,
+          ),
+        );
       }
       break;
     }

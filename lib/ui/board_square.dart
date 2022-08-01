@@ -6,13 +6,11 @@ import '../models/board/game_state_notifier.dart';
 import '../models/squares/piece.dart';
 
 class BoardSquare extends StatelessWidget {
-  final Square square;
   final Coordinate coord;
-  final bool isWhite;
+  final bool isLightSquare;
 
   BoardSquare({
-    required this.square,
-    required this.isWhite,
+    required this.isLightSquare,
     required this.coord,
     Key? key,
   }) : super(key: key);
@@ -20,8 +18,10 @@ class BoardSquare extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = Provider.of<GameStateNotifier>(context);
-    final isKingAndCheck = square is King &&
-        state.boardState.isCheck(isWhite: (square as King).isWhite);
+    final isKingAndCheck =
+        state.boardState.kingSquare(isWhite: state.isWhitesMove) == coord &&
+            state.boardState.isCheck(isWhite: state.isWhitesMove);
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => _handleClick(state),
@@ -29,18 +29,18 @@ class BoardSquare extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: isWhite ? Colors.white : Colors.brown,
+              color: isLightSquare ? Colors.white : Colors.brown,
               gradient: isKingAndCheck
                   ? RadialGradient(
                       focalRadius: 0.3,
                       colors: [
                         Colors.red,
-                        if (isWhite) Colors.white else Colors.brown,
+                        if (isLightSquare) Colors.white else Colors.brown,
                       ],
                     )
                   : null,
             ),
-            child: _squareContent(),
+            child: _squareContent(state),
           ),
           Align(
             alignment: Alignment.bottomRight,
@@ -53,14 +53,17 @@ class BoardSquare extends StatelessWidget {
     );
   }
 
+  /// This method handles the clicking on a square as part of the UI.
+  /// First it checks the content of the clicked square and depending on that
   void _handleClick(GameStateNotifier state) {
-    print('${new DateTime.now()} handling click!');
     // On click of a square containing one of the current players pieces
     final isCurrentPlayersPiece =
-        square is Piece && (square as Piece).isWhite == state.isWhitesMove;
+        state.boardState.getPiece(coord)?.isWhite == state.isWhitesMove;
 
     // No piece is selected and the square does not contain the current players color
-    final hasNoAction = !isCurrentPlayersPiece && !square.isLegalTarget;
+    final hasNoAction = !isCurrentPlayersPiece &&
+        !state.boardState.squares[coord.y][coord.x].isLegalTarget;
+
     if (hasNoAction) {
       state.selectedCoord = null;
       return;
@@ -69,31 +72,30 @@ class BoardSquare extends StatelessWidget {
       state.selectedCoord = coord;
       return;
     }
-    // If a piece is already selected and the clicked square is a legal target.
-    final validMove = (state.selectedCoord != null) && square.isLegalTarget;
-    if (validMove) {
-      state.move(target: coord);
-    }
+    state.moveTo(coord);
   }
 
-  Widget? _squareContent() {
-    // Empty Square
+  Widget? _squareContent(GameStateNotifier state) {
+    // Extract the square information based on [this.coord] from the game state
+    final square = state.boardState.squares[coord.y][coord.x];
+    // The square is empty and not a legal target
     if (!square.isLegalTarget && square is! Piece) {
       return null;
     }
-    // Occupied square
+    // The square is occupied...
     if (square is Piece) {
-      final piece = square as Piece;
-      // Occupied square which can't be captured
-      if (!piece.isLegalTarget) {
-        return piece.figurine();
-      } else {
+      // ...but not a legal target -> simply show the figurine
+      if (!square.isLegalTarget) {
+        return square.figurine();
+      }
+      // ...and legal target -> add green border
+      else {
         return Container(
           decoration: BoxDecoration(
             border: Border.all(color: Colors.green.withOpacity(0.6), width: 4),
             color: Colors.transparent,
           ),
-          child: piece.figurine(),
+          child: square.figurine(),
         );
       }
     }

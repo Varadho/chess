@@ -16,7 +16,15 @@ class Knight extends Piece {
   @override
   List<Move> _possibleMoves(BoardState boardState, Coordinate start) {
     final result = HORSEY
-        .map<Move>((move) => Move(start: start, target: start + move))
+        .map<Move>(
+          (direction) => boardState.getPiece(start + direction) == null
+              ? Move(start: start, target: start + direction)
+              : Capture(
+                  start: start,
+                  target: start + direction,
+                  capturedPiece: boardState.getPiece(start + direction)!,
+                ),
+        )
         .where(
           (move) =>
               move.target.isOnTheBoard &&

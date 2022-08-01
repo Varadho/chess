@@ -11,8 +11,9 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) =>
-              GameStateNotifier(boardState: BoardState.newGame()),
+          create: (context) => GameStateNotifier(
+            boardState: BoardState.newGame(),
+          ),
         ),
       ],
       child: ChessApp(),

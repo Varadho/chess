@@ -26,45 +26,50 @@ class King extends Piece {
         continue;
       }
       if (boardState.getPiece(target)!.isWhite != this.isWhite) {
-        result.add(Move(start: start, target: target));
+        result.add(
+          Capture(
+            start: start,
+            target: target,
+            capturedPiece: boardState.getPiece(target)!,
+          ),
+        );
       }
     }
+    // Castling logic
+    //Not standing in check
     if (!boardState.isCheck(isWhite: isWhite)) {
       //King side
       if (boardState.castlingRights.contains('${isWhite ? 'K' : 'k'}') &&
           //Squares between king and rook are empty (both are null)
-          boardState.getPiece(start + Vector(1, 0)) ==
-              boardState.getPiece(start + Vector(2, 0)) &&
-          //Not standing in or moving through check
-          // !boardState.simulateMove(start, start).isCheck(isWhite: isWhite) &&
+          boardState.getPiece(start + RIGHT) ==
+              boardState.getPiece(start + (RIGHT * 2)) &&
+          //Not passing through check
           !boardState
-              .applyMove(Move(start: start, target: start + Vector(1, 0)))
+              .applyMove(Move(start: start, target: start + RIGHT))
               .isCheck(isWhite: isWhite)) {
-        result.add(Move(start: start, target: start + Vector(2, 0)));
+        result.add(Move(start: start, target: start + (RIGHT * 2)));
       }
       //Queen side
       if (boardState.castlingRights.contains('${isWhite ? 'Q' : 'q'}') &&
           //Squares between king and rook are empty
-          boardState.getPiece(start + Vector(-1, 0)) ==
-              boardState.getPiece(start + Vector(-2, 0)) &&
-          boardState.getPiece(start + Vector(-3, 0)) == null &&
-          //Not standing in or moving through check
-          // !boardState.simulateMove(start, start).isCheck(isWhite: isWhite) &&
+          boardState.getPiece(start + LEFT) ==
+              boardState.getPiece(start + LEFT * 2) &&
+          boardState.getPiece(start + LEFT * 3) == null &&
+          //Not moving through check
           !boardState
-              .applyMove(Move(start: start, target: start + Vector(-1, 0)))
+              .applyMove(Move(start: start, target: start + LEFT))
               .isCheck(isWhite: isWhite) &&
           !boardState
               .applyMove(
                 Move(
                   start: start,
-                  target: start + Vector(-2, 0),
+                  target: start + (LEFT * 2),
                 ),
               )
               .isCheck(isWhite: isWhite)) {
-        result.add(Move(start: start, target: start + Vector(-2, 0)));
+        result.add(Move(start: start, target: start + (LEFT * 2)));
       }
     }
-
     return result;
   }
 }

@@ -10,7 +10,4 @@ class Square {
 
   Square copyWith({bool? isLegalTarget}) =>
       Square(isLegalTarget: isLegalTarget ?? this.isLegalTarget);
-
-  @override
-  List<Object?> get props => [isLegalTarget];
 }

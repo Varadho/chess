@@ -33,8 +33,7 @@ class Board extends StatelessWidget {
             final x = index % 8;
             final y = (index / 8).floor();
             return BoardSquare(
-              isWhite: (y - x).isEven,
-              square: currentBoardState.squares[y][x],
+              isLightSquare: (y - x).isEven,
               coord: Coordinate(x, y),
             );
           },

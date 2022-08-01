@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/board/game_state_notifier.dart';
+import '../models/constants.dart';
 
 class GameStateDisplay extends StatelessWidget {
   final TextStyle _textStyle =
@@ -34,7 +35,13 @@ class GameStateDisplay extends StatelessWidget {
             ),
           ),
           Text(
-            'Current player: ${state.isWhitesMove ? 'White' : 'Black'}',
+            '${state.isWhitesMove ? 'White' : 'Black'} to move',
+            style: _textStyle,
+          ),
+          Text(
+            state.gameState == GameState.PLAYING
+                ? 'IN PROGRESS'
+                : 'Game ended with ${state.gameState == GameState.DRAW ? 'draw' : 'win for ${state.isWhitesMove ? 'white' : 'black'}'}',
             style: _textStyle,
           ),
           //

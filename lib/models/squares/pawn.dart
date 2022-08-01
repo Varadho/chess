@@ -19,26 +19,32 @@ class Pawn extends Piece {
     final attacks = this.isWhite
         ? [Vector(-1, 1), Vector(1, 1)]
         : [Vector(-1, -1), Vector(1, -1)];
-    final moves = this.isWhite
-        ? [Vector(0, 1), Vector(0, 2)]
-        : [Vector(0, -1), Vector(0, -2)];
+    final moves = this.isWhite ? [UP, UP * 2] : [DOWN, DOWN * 2];
 
     for (final attack in attacks) {
       final target = start + attack;
       if (!target.isOnTheBoard) {
         continue;
       }
-
       if (boardState.enPassantTarget == target ||
-          boardState.getPiece(target) != null &&
-              boardState.getPiece(target)!.isWhite != this.isWhite)
-        result.add(Move(start: start, target: target));
+          (boardState.getPiece(target)?.isWhite ?? isWhite) == !isWhite)
+        result.add(
+          Capture(
+            //getPiece(target) can return null when capturing en passant
+            capturedPiece:
+                boardState.getPiece(target) ?? Pawn(isWhite: !isWhite),
+            start: start,
+            target: target,
+          ),
+        );
     }
-    if (boardState.getPiece(start + moves[0]) == null) {
-      result.add(Move(start: start, target: start + moves[0]));
-      if (start.y == (this.isWhite ? 1 : 6) &&
-          boardState.getPiece(start + moves[1]) == null) {
-        result.add(Move(start: start, target: start + moves[1]));
+    for (final move in moves) {
+      final target = start + move;
+      if (boardState.getPiece(target) == null) {
+        result.add(Move(start: start, target: target));
+      }
+      if (start.y != (this.isWhite ? 1 : 6)) {
+        break;
       }
     }
     return result;
