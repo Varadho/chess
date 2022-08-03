@@ -15,7 +15,7 @@ class Pawn extends Piece {
 
   @override
   List<Move> _possibleMoves(BoardState boardState, Coordinate start) {
-    final result = <Move>[];
+    final possibleMoves = <Move>[];
     final attacks = this.isWhite
         ? [Vector(-1, 1), Vector(1, 1)]
         : [Vector(-1, -1), Vector(1, -1)];
@@ -28,7 +28,7 @@ class Pawn extends Piece {
       }
       if (boardState.enPassantTarget == target ||
           (boardState.getPiece(target)?.isWhite ?? isWhite) == !isWhite)
-        result.add(
+        possibleMoves.add(
           Capture(
             //getPiece(target) can return null when capturing en passant
             capturedPiece:
@@ -40,13 +40,16 @@ class Pawn extends Piece {
     }
     for (final move in moves) {
       final target = start + move;
-      if (boardState.getPiece(target) == null) {
-        result.add(Move(start: start, target: target));
+      //if there is a piece on the square, don't add the move.
+      if (boardState.getPiece(target) != null) {
+        break;
       }
+      possibleMoves.add(Move(start: start, target: target));
+      //If we're not on the starting rank, stop looping.
       if (start.y != (this.isWhite ? 1 : 6)) {
         break;
       }
     }
-    return result;
+    return possibleMoves;
   }
 }

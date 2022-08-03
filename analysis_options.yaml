@@ -7,8 +7,7 @@ analyzer:
     - test/**.mocks.dart
 
   errors:
-    deprecated_member_use: ignore # TODO: Turn on after Flutter-2.5 update lands to see deprecation warnings!
-
+    deprecated_member_use: true
     # TEMPORARILY DEACTIVATED!
     prefer_const_literals_to_create_immutables: ignore
     prefer_const_constructors: ignore

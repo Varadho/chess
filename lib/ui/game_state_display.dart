@@ -34,6 +34,24 @@ class GameStateDisplay extends StatelessWidget {
                       .resetGame(),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                splashFactory: NoSplash.splashFactory,
+                surfaceTintColor: Colors.transparent,
+                enableFeedback: false,
+                side: BorderSide(),
+              ),
+              child: Text(
+                'Queen endgame',
+                style: _textStyle,
+              ),
+              onPressed: () =>
+                  Provider.of<GameStateNotifier>(context, listen: false)
+                      .queenEndgame(),
+            ),
+          ),
           Text(
             '${state.isWhitesMove ? 'White' : 'Black'} to move',
             style: _textStyle,
@@ -41,7 +59,7 @@ class GameStateDisplay extends StatelessWidget {
           Text(
             state.gameState == GameState.PLAYING
                 ? 'IN PROGRESS'
-                : 'Game ended with ${state.gameState == GameState.DRAW ? 'draw' : 'win for ${state.isWhitesMove ? 'white' : 'black'}'}',
+                : 'GAME ENDED\n${state.gameState == GameState.DRAW ? 'Draw' : 'Win for ${state.isWhitesMove ? 'white' : 'black'}'}',
             style: _textStyle,
           ),
           //

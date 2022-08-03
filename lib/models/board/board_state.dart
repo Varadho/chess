@@ -22,6 +22,7 @@ class BoardState extends Equatable {
   ///Representation of current castling rights.
   final String castlingRights;
 
+  /// Standard constructor for the BoardState class
   const BoardState({
     this.enPassantTarget = null,
     this.castlingRights = 'KQkq',
@@ -33,6 +34,12 @@ class BoardState extends Equatable {
       : castlingRights = 'KQkq',
         enPassantTarget = null,
         squares = _initialSquares();
+
+  /// Creates a freshly set up game of chess
+  BoardState.queenEndgame()
+      : castlingRights = '',
+        enPassantTarget = null,
+        squares = _queenEndgameSquares();
 
   /// Returns the [Piece] which is currently standing on [c].
   /// Returns null if the square is empty.
@@ -59,8 +66,8 @@ class BoardState extends Equatable {
   Coordinate findPieceCoordinate(Piece target) {
     for (var i = 0; i < 8; i++) {
       for (var j = 0; j < 8; j++) {
-        if (squares[i][j] == target) {
-          return Coordinate(j, i);
+        if (squares[j][i] == target) {
+          return Coordinate(i, j);
         }
       }
     }
@@ -87,64 +94,20 @@ class BoardState extends Equatable {
     var nextEnPassantTarget = null;
 
     final isWhitesMove = piece.isWhite;
-    //TODO Debug and refactor this
+
+    //Additional Board manipulation like: castling, promoting, enPassant
     switch (piece.runtimeType) {
       case Pawn:
-        //Promoting
-        if (target.y == (isWhitesMove ? 7 : 0)) {
-          nextSquares[target.y][target.x] = Queen(isWhite: piece.isWhite);
-        }
-        //Taking en passant
-        if (target == enPassantTarget) {
-          nextSquares[target.y + (isWhitesMove ? -1 : 1)][target.x] = Square();
-        }
-
-        //Setting en passant
-        final isMovingTwoSquares =
-            target.y - move.start.y == (isWhitesMove ? 2 : -2);
-        if (isMovingTwoSquares) {
-          nextEnPassantTarget = Coordinate(
-            target.x,
-            target.y + (isWhitesMove ? -1 : 1),
-          );
-        }
+        nextEnPassantTarget =
+            _handlePawnMove(move, isWhitesMove, nextSquares, piece);
         break;
       case King:
-        if ((target - move.start).dx == 2 &&
-            castlingRights.contains(isWhitesMove ? 'K' : 'k')) {
-          final rook = getPiece(Coordinate(7, target.y))!;
-          nextSquares[target.y][7] = Square();
-          nextSquares[target.y][5] = rook;
-        }
-        if ((target - move.start).dx == -2 &&
-            castlingRights.contains(isWhitesMove ? 'Q' : 'q')) {
-          final rook = getPiece(Coordinate(0, target.y))!;
-          nextSquares[target.y][0] = Square();
-          nextSquares[target.y][3] = rook;
-        }
-        nextCastlingRights = nextCastlingRights
-            .replaceFirst(isWhitesMove ? 'K' : 'k', '')
-            .replaceFirst(isWhitesMove ? 'Q' : 'q', '');
+        nextCastlingRights =
+            _handleKingMove(move, isWhitesMove, nextSquares, piece);
         break;
       case Rook:
-        if (move.start.x == 0 || move.start.x == 7) {
-          final kingSide = move.start.x == 7;
-          final toBeRemoved;
-          if (kingSide) {
-            if (isWhitesMove) {
-              toBeRemoved = 'K';
-            } else {
-              toBeRemoved = 'k';
-            }
-          } else {
-            if (isWhitesMove) {
-              toBeRemoved = 'Q';
-            } else {
-              toBeRemoved = 'q';
-            }
-          }
-          nextCastlingRights = nextCastlingRights.replaceFirst(toBeRemoved, '');
-        }
+        nextCastlingRights =
+            _handleRookMove(move, isWhitesMove, nextSquares, piece);
         break;
     }
 
@@ -154,19 +117,6 @@ class BoardState extends Equatable {
       squares: nextSquares,
     ).clearLegalMoves();
   }
-
-  // TODO: Think of a nicer way to pass the square to legalMoves
-  /// Returns a boolean which indicates whether the [isWhite] Player has any further legal moves
-  bool isStalemate({bool isWhite = true}) => !squares.any(
-        (file) => file.any(
-          (square) =>
-              square is Piece &&
-              square.isWhite == isWhite &&
-              square
-                  .legalMoves(this, this.findPieceCoordinate(square))
-                  .isNotEmpty,
-        ),
-      );
 
   /// Returns a boolean which indicates whether the [isWhite] King is in check.
   bool isCheck({bool isWhite = true}) {
@@ -193,9 +143,47 @@ class BoardState extends Equatable {
     return rookCheck || bishopCheck || knightCheck || pawnCheck || kingCheck;
   }
 
+  /// Returns a boolean which indicates whether the [isWhite] Player has any further legal moves
+  bool isStalemate({bool isWhite = true}) =>
+      !squares.any(
+        (file) => file.any(
+          (square) =>
+              square is Piece &&
+              square.isWhite == isWhite &&
+              square
+                  .legalMoves(this, this.findPieceCoordinate(square))
+                  .isNotEmpty,
+        ),
+      )
+      // TODO WTF WHY DOES THIS BREAK THE [findPieceCoordinate] CALL?!
+      ||
+      isInsufficientMaterial();
+
   /// Returns a boolean which indicates whether the [isWhite] King is checkmated.
   bool isCheckmate({bool isWhite = true}) =>
       isCheck(isWhite: isWhite) && isStalemate(isWhite: isWhite);
+
+  /// Function to determine if there is enough material on the Board for one player to checkmate the other.
+  bool isInsufficientMaterial() {
+    final pieces = squares
+        .reduce(
+          (file, rank) => file..addAll(rank),
+        )
+        .where((square) => square is Piece)
+        .toList();
+    final canForceMate =
+        pieces.any((piece) => piece is Pawn || piece is Queen || piece is Rook);
+
+    final numberOfKnightsAndBishops = pieces.fold<int>(
+      0,
+      (previousValue, element) => element is Knight || element is Bishop
+          ? previousValue++
+          : previousValue,
+    );
+    // This is not 100% accurate, since theoretically both players could have a
+    // single bishop and the game would continue.
+    return !(canForceMate || (numberOfKnightsAndBishops >= 2));
+  }
 
   /// Display the current [BoardState] with legal moves indicated by a green highlight
   /// accepts any List of coordinates and sets the [isLegalTarget] parameter for the squares of said coordinates
@@ -235,14 +223,16 @@ class BoardState extends Equatable {
           Knight(isWhite: false),
           Rook(isWhite: false)
         ],
+        // Black pawns
         [for (int i = 0; i < 8; i++) Pawn(isWhite: false)],
         //Empty Squares
         for (int i = 3; i <= 6; i++)
           [
             for (int j = 0; j < 8; j++) Square(),
           ],
-        //White Pieces
+        //White Pawns
         [for (int i = 0; i < 8; i++) Pawn()],
+        //White Pieces
         [
           Rook(),
           Knight(),
@@ -268,6 +258,122 @@ class BoardState extends Equatable {
     return result.toString();
   }
 
+  /// BoardSquares with a King and Queen for each side, simulating a Queen-endgame
+  static List<List<Square>> _queenEndgameSquares() => <List<Square>>[
+        // Black Pieces
+        [
+          for (int i = 0; i < 3; i++) Square(),
+          King(isWhite: false),
+          Queen(isWhite: false),
+          for (int i = 0; i < 3; i++) Square(),
+        ],
+        //Empty Squares
+        for (int i = 2; i <= 7; i++)
+          [
+            for (int j = 0; j < 8; j++) Square(),
+          ],
+        //White Pieces
+        [
+          for (int i = 0; i < 3; i++) Square(),
+          King(),
+          Queen(),
+          for (int i = 0; i < 3; i++) Square(),
+        ],
+      ].reversed.toList();
+
   @override
   List<Object?> get props => [enPassantTarget, castlingRights, squares];
+
+  /// Helper function to modify boardState other than moving or simply capturing a piece.
+  /// For Pawns this includes promotion, taking enPassant, and setting enPassant.
+  /// The return value is a Coordinate which represents the next enPassant target.
+  Coordinate? _handlePawnMove(
+    Move move,
+    bool isWhitesMove,
+    List<List<Square>> squares,
+    Piece piece,
+  ) {
+    final target = move.target;
+    final start = move.start;
+    //Promoting
+    if (target.y == (isWhitesMove ? 7 : 0)) {
+      squares[target.y][target.x] = Queen(isWhite: piece.isWhite);
+    }
+    //Taking en passant
+    if (target == enPassantTarget) {
+      squares[target.y + (isWhitesMove ? -1 : 1)][target.x] = Square();
+    }
+
+    //Setting en passant
+    final isMovingTwoSquares = target.y - start.y == (isWhitesMove ? 2 : -2);
+    if (isMovingTwoSquares) {
+      return Coordinate(
+        target.x,
+        target.y + (isWhitesMove ? -1 : 1),
+      );
+    }
+    return null;
+  }
+
+  /// Helper function to modify boardState further than moving pieces.
+  /// For the King this includes performing a castling move and setting the respective castling rights.
+  /// The return value is the modified castling rights.
+  String _handleKingMove(
+    Move move,
+    bool isWhitesMove,
+    List<List<Square>> squares,
+    Piece piece,
+  ) {
+    final target = move.target;
+    final start = move.start;
+    // Castling kingside
+    if ((target - start).dx == 2 &&
+        castlingRights.contains(isWhitesMove ? 'K' : 'k')) {
+      final rook = getPiece(Coordinate(7, target.y))!;
+      squares[target.y][7] = Square();
+      squares[target.y][5] = rook;
+    }
+    // Castling queenside
+    if ((target - start).dx == -2 &&
+        castlingRights.contains(isWhitesMove ? 'Q' : 'q')) {
+      final rook = getPiece(Coordinate(0, target.y))!;
+      squares[target.y][0] = Square();
+      squares[target.y][3] = rook;
+    }
+    //Remove all castling rights after the king moved.
+    return castlingRights
+        .replaceFirst(isWhitesMove ? 'K' : 'k', '')
+        .replaceFirst(isWhitesMove ? 'Q' : 'q', '');
+  }
+
+  /// Helper function to modify boardState further than moving pieces.
+  /// For the Rook this includes setting the respective castling rights, once it moves.
+  /// The return value is the modified castling rights.
+  String _handleRookMove(
+    Move move,
+    bool isWhitesMove,
+    List<List<Square>> squares,
+    Piece piece,
+  ) {
+    final start = move.start;
+    if (start.x == 0 || start.x == 7) {
+      final kingSide = start.x == 7;
+      final toBeRemoved;
+      if (kingSide) {
+        if (isWhitesMove) {
+          toBeRemoved = 'K';
+        } else {
+          toBeRemoved = 'k';
+        }
+      } else {
+        if (isWhitesMove) {
+          toBeRemoved = 'Q';
+        } else {
+          toBeRemoved = 'q';
+        }
+      }
+      return castlingRights.replaceFirst(toBeRemoved, '');
+    }
+    return castlingRights;
+  }
 }

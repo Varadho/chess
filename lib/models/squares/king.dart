@@ -15,18 +15,18 @@ class King extends Piece {
 
   @override
   List<Move> _possibleMoves(BoardState boardState, Coordinate start) {
-    final result = <Move>[];
+    final possibleMoves = <Move>[];
     for (final move in OMNI) {
       final target = start + move;
       if (!target.isOnTheBoard) {
         continue;
       }
       if (boardState.getPiece(target) == null) {
-        result.add(Move(start: start, target: target));
+        possibleMoves.add(Move(start: start, target: target));
         continue;
       }
       if (boardState.getPiece(target)!.isWhite != this.isWhite) {
-        result.add(
+        possibleMoves.add(
           Capture(
             start: start,
             target: target,
@@ -47,7 +47,7 @@ class King extends Piece {
           !boardState
               .applyMove(Move(start: start, target: start + RIGHT))
               .isCheck(isWhite: isWhite)) {
-        result.add(Move(start: start, target: start + (RIGHT * 2)));
+        possibleMoves.add(Move(start: start, target: start + (RIGHT * 2)));
       }
       //Queen side
       if (boardState.castlingRights.contains('${isWhite ? 'Q' : 'q'}') &&
@@ -67,9 +67,9 @@ class King extends Piece {
                 ),
               )
               .isCheck(isWhite: isWhite)) {
-        result.add(Move(start: start, target: start + (LEFT * 2)));
+        possibleMoves.add(Move(start: start, target: start + (LEFT * 2)));
       }
     }
-    return result;
+    return possibleMoves;
   }
 }

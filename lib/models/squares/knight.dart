@@ -15,7 +15,7 @@ class Knight extends Piece {
 
   @override
   List<Move> _possibleMoves(BoardState boardState, Coordinate start) {
-    final result = HORSEY
+    final possibleMoves = HORSEY
         .map<Move>(
           (direction) => boardState.getPiece(start + direction) == null
               ? Move(start: start, target: start + direction)
@@ -32,6 +32,6 @@ class Knight extends Piece {
                   boardState.getPiece(move.target)!.isWhite != this.isWhite),
         )
         .toList();
-    return result;
+    return possibleMoves;
   }
 }

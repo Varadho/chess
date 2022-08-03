@@ -15,10 +15,10 @@ class Queen extends Piece {
 
   @override
   List<Move> _possibleMoves(BoardState boardState, Coordinate start) {
-    final result = <Move>[];
+    final possibleMoves = <Move>[];
     for (final direction in OMNI) {
-      result.addAll(_legalMovesInDirection(boardState, start, direction));
+      possibleMoves.addAll(_legalMovesInDirection(boardState, start, direction));
     }
-    return result;
+    return possibleMoves;
   }
 }

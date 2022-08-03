@@ -15,10 +15,10 @@ class Rook extends Piece {
 
   @override
   List<Move> _possibleMoves(BoardState boardState, Coordinate start) {
-    final result = <Move>[];
+    final possibleMoves = <Move>[];
     for (final straight in STRAIGHTS) {
-      result.addAll(_legalMovesInDirection(boardState, start, straight));
+      possibleMoves.addAll(_legalMovesInDirection(boardState, start, straight));
     }
-    return result;
+    return possibleMoves;
   }
 }

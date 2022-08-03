@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/board/coordinate.dart';
 import '../models/board/game_state_notifier.dart';
+import '../models/constants.dart';
 import '../models/squares/piece.dart';
 
 class BoardSquare extends StatelessWidget {
@@ -45,8 +46,9 @@ class BoardSquare extends StatelessWidget {
           Align(
             alignment: Alignment.bottomRight,
             child: Text(
-              coord.toString(),
-            ), //('${FILES[coord.x]}${RANKS[coord.y]}'),
+              '${FILES[coord.x]}${RANKS[coord.y]}',
+              // coord.toString(),
+            ),
           ),
         ],
       ),

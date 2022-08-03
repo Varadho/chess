@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-/// A two dimensional coordinate which allows for manipulation of various
+/// A two dimensional coordinate which allows for manipulation of various kinds
 class Coordinate extends Equatable {
   final int x;
   final int y;

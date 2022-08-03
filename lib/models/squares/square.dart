@@ -1,5 +1,6 @@
 part of 'piece.dart';
 
+/// The super class for all of our squares. All pieces extend off of this,
 class Square {
   final bool isLegalTarget;
 
